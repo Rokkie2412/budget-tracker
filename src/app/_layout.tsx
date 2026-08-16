@@ -1,7 +1,8 @@
+// src/app/_layout.tsx
 import { Stack, router, useSegments } from "expo-router";
 import { useEffect } from "react";
 
-import AuthSplashScreen from "@/components/auth-splash-screen";
+import AuthSplashScreen from "@/components/ui/authSplashScreen";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
@@ -26,7 +27,7 @@ export default function RootLayout(): React.JSX.Element {
     if (!token && !inAuthGroup) {
       router.replace("/login");
     } else if (token && inAuthGroup) {
-      router.replace("/");
+      router.replace("/(tabs)");
     }
   }, [token, isLoading, segments]);
 
@@ -37,7 +38,7 @@ export default function RootLayout(): React.JSX.Element {
   return (
     <GluestackUIProvider mode="light">
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="login" />
       </Stack>
     </GluestackUIProvider>

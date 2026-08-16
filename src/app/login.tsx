@@ -6,13 +6,13 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Text,
   View,
 } from "react-native";
 import * as Yup from "yup";
 
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import { CountryCode, InputForm } from "@/components/ui/inputForm";
+import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
 import { KeyLanguage } from "@/types";

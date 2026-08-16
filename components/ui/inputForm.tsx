@@ -5,7 +5,6 @@ import {
   Modal,
   NativeSyntheticEvent,
   Pressable,
-  Text,
   TextInputFocusEventData,
   TextInputProps,
   TouchableOpacity,
@@ -22,6 +21,7 @@ import {
   FormControlLabelText,
 } from "@/components/ui/form-control";
 import { Input, InputField } from "@/components/ui/input";
+import { Text } from "@/components/ui/text";
 import { useLanguageStore } from "@/stores/languageStore";
 
 export interface CountryCode {

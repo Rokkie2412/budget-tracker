@@ -21,6 +21,10 @@ export const translations = {
     english: "Bahasa Inggris",
     logout: "Keluar",
     selectPhoneCode: "Pilih Kode Negara",
+    dashboardBottomMenu: "Dashboard",
+    transactionBottomMenu: "Transaksi",
+    reportBottomMenu: "Laporan",
+    settingsBottomMenu: "Pengaturan",
   },
   en: {
     welcome: "Welcome",
@@ -44,6 +48,10 @@ export const translations = {
     english: "English",
     logout: "Logout",
     selectPhoneCode: "Select Phone Country",
+    dashboardBottomMenu: "Dashboard",
+    transactionBottomMenu: "Transaction",
+    reportBottomMenu: "Report",
+    settingsBottomMenu: "Settings",
   },
 } as const;
 
