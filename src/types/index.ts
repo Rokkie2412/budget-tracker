@@ -1,4 +1,5 @@
-import { TranslationKeys } from "@/i18n/translations";
+import type { TranslationKeys } from "@/i18n/translations";
+import type { Dispatch, SetStateAction } from "react";
 
 export interface IUserConnected {
   userId: string;
@@ -44,3 +45,28 @@ export interface TotalTransactionRekap {
 }
 
 export type KeyLanguage = (key: TranslationKeys) => string;
+export type Setter<t> = Dispatch<SetStateAction<t>>;
+
+export type MonthSummary = {
+  total: number;
+  income: number;
+  outcome: number;
+};
+
+export type MonthComparison = {
+  percentage: string | null;
+  status: "plus" | "minus" | null;
+};
+
+export type MonthlyTransactionDetailData = MonthSummary & {
+  year: number;
+  month: number;
+  transactions: ITransaction[];
+  lastMonth: MonthSummary;
+  comparison: MonthComparison;
+};
+
+export type MonthlyTransactionDetailResponse = {
+  message: string;
+  data: MonthlyTransactionDetailData;
+};

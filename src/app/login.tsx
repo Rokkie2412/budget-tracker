@@ -113,7 +113,7 @@ const LoginPage = (): React.JSX.Element => {
           <View className="bg-white h-full p-6 gap-6">
             {/* Header */}
             <View className="items-center gap-2">
-              <View className="w-16 h-16 bg-blue-600 rounded-2xl justify-center items-center mb-1 shadow-md">
+              <View className="w-16 h-16 bg-[#1A2B48] rounded-2xl justify-center items-center mb-1 shadow-md">
                 <LogIn size={32} color="#ffffff" />
               </View>
               <Text className="text-2xl font-bold text-slate-900">
@@ -199,7 +199,7 @@ const LoginPage = (): React.JSX.Element => {
               <Button
                 onPress={(): void => formik.handleSubmit()}
                 isDisabled={formik.isSubmitting}
-                className="mt-2 py-3.5 rounded-xl bg-blue-600 active:bg-blue-700 shadow-sm"
+                className="mt-2 py-3.5 rounded-xl bg-[#1A2B48] active:bg-[#142437] shadow-sm"
               >
                 {formik.isSubmitting ? (
                   <ButtonSpinner className="mr-2" />

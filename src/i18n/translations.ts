@@ -25,6 +25,10 @@ export const translations = {
     transactionBottomMenu: "Transaksi",
     reportBottomMenu: "Laporan",
     settingsBottomMenu: "Pengaturan",
+    total: "Total Saldo",
+    outgoing: "Pengeluaran",
+    incoming: "Pemasukan",
+    lastMonthData: "dari bulan lalu",
   },
   en: {
     welcome: "Welcome",
@@ -52,6 +56,10 @@ export const translations = {
     transactionBottomMenu: "Transaction",
     reportBottomMenu: "Report",
     settingsBottomMenu: "Settings",
+    total: "Total Balance",
+    outgoing: "Outgoing",
+    incoming: "Incoming",
+    lastMonthData: "from last month",
   },
 } as const;
 

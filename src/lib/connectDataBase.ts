@@ -12,12 +12,8 @@ declare global {
 const getMongoUri = (): string => {
   const uri =
     process.env.NODE_ENV === "production"
-      ? process.env.MONGO_URI_PROD ||
-        process.env.MONGODB_URI ||
-        process.env.MONGO_URI
-      : process.env.MONGO_URI_DEV ||
-        process.env.MONGODB_URI ||
-        process.env.MONGO_URI;
+      ? process.env.MONGO_URI_PROD
+      : process.env.MONGO_URI_DEV;
 
   if (!uri) {
     throw new Error(
@@ -38,21 +34,30 @@ if (!globalThis.mongooseCache) {
 }
 
 export const connectDataBase = async (): Promise<Mongoose> => {
-  if (cached.conn) {
+  if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
   }
 
-  if (!cached.promise) {
+  if (!cached.promise || mongoose.connection.readyState !== 1) {
     const uri = getMongoUri();
-    cached.promise = mongoose.connect(uri).then((m: Mongoose): Mongoose => {
-      return m;
-    });
+    const opts = {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
+    };
+
+    cached.promise = mongoose
+      .connect(uri, opts)
+      .then((m: Mongoose): Mongoose => {
+        return m;
+      });
   }
 
   try {
     cached.conn = await cached.promise;
   } catch (error: unknown) {
     cached.promise = null;
+    cached.conn = null;
     throw error;
   }
 
