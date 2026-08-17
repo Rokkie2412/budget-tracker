@@ -29,6 +29,11 @@ export const translations = {
     outgoing: "Pengeluaran",
     incoming: "Pemasukan",
     lastMonthData: "dari bulan lalu",
+    commonLoading: "Memuat data Anda...",
+    errorTitle: "Terjadi Kesalahan",
+    errorDescription: "Gagal memuat data. Silakan periksa koneksi Anda dan coba lagi.",
+    retry: "Coba Lagi",
+    goBack: "Kembali",
   },
   en: {
     welcome: "Welcome",
@@ -60,6 +65,11 @@ export const translations = {
     outgoing: "Outgoing",
     incoming: "Incoming",
     lastMonthData: "from last month",
+    commonLoading: "Prepring your data...",
+    errorTitle: "Something Went Wrong",
+    errorDescription: "Failed to load data. Please check your connection and try again.",
+    retry: "Try Again",
+    goBack: "Go Back",
   },
 } as const;
 

@@ -2,6 +2,12 @@ import connectDataBase from "@/lib/connectDataBase";
 import { hashUserId } from "@/lib/hashUserId";
 import { verifyAuth } from "@/lib/jwtToken";
 import { Transaction } from "@/models";
+import type {
+  CategoryBreakdown,
+  CategoryBreakdownItem,
+  ExpenseCategory,
+  IncomeCategory,
+} from "@/types";
 
 interface RequestBody {
   userId: string;
@@ -59,6 +65,85 @@ const getSummaryForRange = async (
   };
 };
 
+interface CategoryAggregationRaw {
+  _id: {
+    type: "IN" | "OUT";
+    category: string;
+  };
+  total: number;
+  count: number;
+}
+
+const getCategoryBreakdown = async (
+  userId: string,
+  startDate: Date,
+  endDate: Date,
+  incomingTotal: number,
+  outgoingTotal: number,
+): Promise<CategoryBreakdown> => {
+  const results: CategoryAggregationRaw[] = await Transaction.aggregate([
+    {
+      $match: {
+        userId,
+        date: { $gte: startDate, $lte: endDate },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          type: "$type",
+          category: { $ifNull: ["$category", "Other"] },
+        },
+        total: { $sum: "$amount" },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { total: -1 },
+    },
+  ]);
+
+  const expenses: CategoryBreakdownItem<ExpenseCategory>[] = [];
+  const income: CategoryBreakdownItem<IncomeCategory>[] = [];
+
+  for (const item of results) {
+    const rawCategory = item._id.category || "Other";
+    const total = item.total;
+    const count = item.count;
+
+    if (item._id.type === "OUT") {
+      const percentage =
+        outgoingTotal > 0
+          ? parseFloat(((total / outgoingTotal) * 100).toFixed(1))
+          : 0;
+      expenses.push({
+        category: rawCategory as ExpenseCategory,
+        total,
+        percentage,
+        percentageFormatted: `${percentage}%`,
+        count,
+      });
+    } else if (item._id.type === "IN") {
+      const percentage =
+        incomingTotal > 0
+          ? parseFloat(((total / incomingTotal) * 100).toFixed(1))
+          : 0;
+      income.push({
+        category: rawCategory as IncomeCategory,
+        total,
+        percentage,
+        percentageFormatted: `${percentage}%`,
+        count,
+      });
+    }
+  }
+
+  return {
+    expenses,
+    income,
+  };
+};
+
 const handleMonthlyDetail = async (
   userId: string,
   dateInput?: string | Date,
@@ -106,6 +191,15 @@ const handleMonthlyDetail = async (
       .lean(),
   ]);
 
+  // Category breakdown with percentage for expenses and income
+  const categories = await getCategoryBreakdown(
+    hashedUserId,
+    startCurrentMonth,
+    endCurrentMonth,
+    currentMonth.incoming,
+    currentMonth.outgoing,
+  );
+
   // Calculate percentage difference comparing to last month if available
   let percentageChange: string | null = null;
   let status: "plus" | "minus" | null = null;
@@ -128,6 +222,7 @@ const handleMonthlyDetail = async (
       total: currentMonth.total,
       income: currentMonth.incoming,
       outcome: currentMonth.outgoing,
+      categories,
       transactions,
       lastMonth: {
         total: lastMonth.total,

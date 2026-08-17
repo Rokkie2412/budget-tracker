@@ -1,3 +1,7 @@
+import {
+  BUDGET_CATEGORIES_EXPENSE,
+  BUDGET_CATEGORIES_INCOME,
+} from "@/constants";
 import type { TranslationKeys } from "@/i18n/translations";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -6,22 +10,9 @@ export interface IUserConnected {
   password: string;
 }
 
-export type BudgetCategory =
-  | "Bills"
-  | "Education"
-  | "Family Needs"
-  | "Food & Drinks"
-  | "Gift and Chartiy"
-  | "Groceries"
-  | "Health & personal care"
-  | "Hobby & Entertaiment"
-  | "Loans"
-  | "Saving & Investment"
-  | "Shopping"
-  | "sports"
-  | "Transportaion"
-  | "Traveling"
-  | "Other";
+export type ExpenseCategory = (typeof BUDGET_CATEGORIES_EXPENSE)[number];
+export type IncomeCategory = (typeof BUDGET_CATEGORIES_INCOME)[number];
+export type BudgetCategory = ExpenseCategory | IncomeCategory;
 
 export interface ITransaction {
   userId: string;
@@ -58,10 +49,24 @@ export type MonthComparison = {
   status: "plus" | "minus" | null;
 };
 
+export interface CategoryBreakdownItem<TCategory extends string> {
+  category: TCategory;
+  total: number;
+  percentage: number;
+  percentageFormatted: string;
+  count: number;
+}
+
+export interface CategoryBreakdown {
+  expenses: CategoryBreakdownItem<ExpenseCategory>[];
+  income: CategoryBreakdownItem<IncomeCategory>[];
+}
+
 export type MonthlyTransactionDetailData = MonthSummary & {
   year: number;
   month: number;
   transactions: ITransaction[];
+  categories: CategoryBreakdown;
   lastMonth: MonthSummary;
   comparison: MonthComparison;
 };

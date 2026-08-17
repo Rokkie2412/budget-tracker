@@ -82,8 +82,8 @@ const FinancialCard = ({ type, amount, data, status }: Props) => {
   return (
     <View
       className={`flex flex-col w-full gap-2.5 ${
-        isTotal ? "p-5 bg-[#1A2B48]" : "p-4 bg-[#fef2f2]"
-      } rounded-xl`}
+        isTotal ? "p-5 bg-[#1A2B48]" : "p-4 bg-[#FFFFFF]"
+      } rounded-xl shadow-sm`}
     >
       <View className="flex-row items-center gap-2">
         <RenderIcon type={type} />

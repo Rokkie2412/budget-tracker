@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import Error from "@/components/ui/errorState";
 import FinancialCard from "@/components/ui/financialCard";
+import LoadingSpinner from "@/components/ui/loadingSpinner";
 import { useAuthStore } from "@/stores/authStore";
 import type {
   MonthlyTransactionDetailData,
@@ -38,49 +40,74 @@ const getMonthlyTransactionsData = async (
   }
 };
 
+const useGetMonthlyTransactionsDataEffect = (
+  setLoading: Setter<boolean>,
+  setData: Setter<MonthlyTransactionDetailData | null>,
+  token: string | null,
+  user: string | undefined,
+) => {
+  useEffect(() => {
+    if (user) {
+      getMonthlyTransactionsData(user, setLoading, setData, token);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+};
+
 export default function HomeScreen(): React.JSX.Element {
   const { user, token } = useAuthStore((state) => state);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<MonthlyTransactionDetailData | null>(null);
 
-  useEffect(() => {
-    if (user?.userId) {
-      getMonthlyTransactionsData(user.userId, setLoading, setData, token);
-    }
-  }, [user?.userId]);
+  useGetMonthlyTransactionsDataEffect(setLoading, setData, token, user?.userId);
+
+  if (loading && !data) {
+    return <LoadingSpinner />;
+  }
+
+  if (!loading && !data) {
+    return (
+      <SafeAreaView className="w-full bg-white h-full">
+        <Error
+          onRetry={() => {
+            if (user?.userId) {
+              getMonthlyTransactionsData(
+                user.userId,
+                setLoading,
+                setData,
+                token,
+              );
+            }
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="w-full bg-white h-full">
-      <View className="p-4 gap-4">
-        {loading && !data ? (
-          <View className="py-8 items-center justify-center">
-            <ActivityIndicator size="large" color="#1A2B48" />
-          </View>
-        ) : (
-          <>
+      <ScrollView className="p-4 gap-4">
+        <FinancialCard
+          type="total"
+          amount={data?.total?.toString() ?? "0"}
+          data={data?.comparison?.percentage ?? undefined}
+          status={data?.comparison?.status ?? undefined}
+        />
+        <View className="flex-row gap-4">
+          <View className="flex-1">
             <FinancialCard
-              type="total"
-              amount={data?.total?.toString() ?? "0"}
-              data={data?.comparison?.percentage ?? undefined}
-              status={data?.comparison?.status ?? undefined}
+              type="incoming"
+              amount={data?.income?.toString() ?? "0"}
             />
-            <View className="flex-row gap-4">
-              <View className="flex-1">
-                <FinancialCard
-                  type="incoming"
-                  amount={data?.income?.toString() ?? "0"}
-                />
-              </View>
-              <View className="flex-1">
-                <FinancialCard
-                  type="outgoing"
-                  amount={data?.outcome?.toString() ?? "0"}
-                />
-              </View>
-            </View>
-          </>
-        )}
-      </View>
+          </View>
+          <View className="flex-1">
+            <FinancialCard
+              type="outgoing"
+              amount={data?.outcome?.toString() ?? "0"}
+            />
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
