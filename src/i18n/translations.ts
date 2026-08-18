@@ -31,9 +31,18 @@ export const translations = {
     lastMonthData: "dari bulan lalu",
     commonLoading: "Memuat data Anda...",
     errorTitle: "Terjadi Kesalahan",
-    errorDescription: "Gagal memuat data. Silakan periksa koneksi Anda dan coba lagi.",
+    errorDescription:
+      "Gagal memuat data. Silakan periksa koneksi Anda dan coba lagi.",
     retry: "Coba Lagi",
     goBack: "Kembali",
+    cashflow: "Arus Kas",
+    detailCashflow: "Lihat Detail",
+    chartMiddleTextIncome: "TOTAL PEMASUKAN",
+    chartMiddleTextExpense: "TOTAL PENGELUARAN",
+    noTransactionDataTitle: "Mari Mulai Mencatat!",
+    noTransactionData:
+      "Catat setiap pengeluaran dan pemasukan untuk melihat laporan keuangan yang rapi dan terukur.",
+    noTransactionDataButton: "Tambah Transaksi",
   },
   en: {
     welcome: "Welcome",
@@ -67,9 +76,18 @@ export const translations = {
     lastMonthData: "from last month",
     commonLoading: "Prepring your data...",
     errorTitle: "Something Went Wrong",
-    errorDescription: "Failed to load data. Please check your connection and try again.",
+    errorDescription:
+      "Failed to load data. Please check your connection and try again.",
     retry: "Try Again",
     goBack: "Go Back",
+    cashflow: "Cash Flow",
+    detailCashflow: "See Detail",
+    chartMiddleTextIncome: "TOTAL INCOME",
+    chartMiddleTextExpense: "TOTAL EXPENSE",
+    noTransactionDataTitle: "Start Recording",
+    noTransactionData:
+      "Record every expense and income to see a neat and measurable financial report.",
+    noTransactionDataButton: "Add Transaction",
   },
 } as const;
 

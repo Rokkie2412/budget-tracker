@@ -72,24 +72,6 @@ const ErrorIllustration = ({
         viewBox="0 0 208 208"
         style={styles.svgAbsolute}
       >
-        {/* Outer subtle aura rings */}
-        <Circle
-          cx="104"
-          cy="104"
-          r="92"
-          stroke={BASE_COLOR}
-          strokeWidth="1.5"
-          strokeOpacity="0.08"
-          strokeDasharray="4 6"
-        />
-        <Circle
-          cx="104"
-          cy="104"
-          r="76"
-          stroke={BASE_COLOR}
-          strokeWidth="1.5"
-          strokeOpacity="0.12"
-        />
         <Circle cx="104" cy="104" r="58" fill={BASE_COLOR} fillOpacity="0.04" />
 
         {/* Orbiting geometric micro-elements */}
