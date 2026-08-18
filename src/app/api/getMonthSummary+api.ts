@@ -9,11 +9,6 @@ import type {
   IncomeCategory,
 } from "@/types";
 
-interface RequestBody {
-  userId: string;
-  date?: string | Date;
-}
-
 interface MonthlyAggregationResult {
   _id: "IN" | "OUT";
   total: number;
@@ -144,7 +139,7 @@ const getCategoryBreakdown = async (
   };
 };
 
-const handleMonthlyDetail = async (
+const handleMonthSummary = async (
   userId: string,
   dateInput?: string | Date,
 ): Promise<Response> => {
@@ -171,7 +166,7 @@ const handleMonthlyDetail = async (
   const year = targetDate.getFullYear();
   const month = targetDate.getMonth(); // 0-indexed
 
-  // Current selected month range (1st day 00:00:00 to last day 23:59:59.999)
+  // Current selected month range
   const startCurrentMonth = new Date(year, month, 1, 0, 0, 0, 0);
   const endCurrentMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
 
@@ -179,19 +174,13 @@ const handleMonthlyDetail = async (
   const startPreviousMonth = new Date(year, month - 1, 1, 0, 0, 0, 0);
   const endPreviousMonth = new Date(year, month, 0, 23, 59, 59, 999);
 
-  // Parallel fetch for current and previous month summaries + current month transactions list
-  const [currentMonth, lastMonth, transactions] = await Promise.all([
+  // Parallel fetch for current and previous month summaries
+  const [currentMonth, lastMonth] = await Promise.all([
     getSummaryForRange(hashedUserId, startCurrentMonth, endCurrentMonth),
     getSummaryForRange(hashedUserId, startPreviousMonth, endPreviousMonth),
-    Transaction.find({
-      userId: hashedUserId,
-      date: { $gte: startCurrentMonth, $lte: endCurrentMonth },
-    })
-      .sort({ date: -1 })
-      .lean(),
   ]);
 
-  // Category breakdown with percentage for expenses and income
+  // Category breakdown for current month
   const categories = await getCategoryBreakdown(
     hashedUserId,
     startCurrentMonth,
@@ -200,7 +189,7 @@ const handleMonthlyDetail = async (
     currentMonth.outgoing,
   );
 
-  // Calculate percentage difference comparing to last month if available
+  // Calculate percentage difference comparing to last month
   let percentageChange: string | null = null;
   let status: "plus" | "minus" | null = null;
 
@@ -215,7 +204,7 @@ const handleMonthlyDetail = async (
   }
 
   return Response.json({
-    message: "Success retrieving monthly transaction detail.",
+    message: "Success retrieving monthly summary.",
     data: {
       year,
       month: month + 1,
@@ -223,7 +212,6 @@ const handleMonthlyDetail = async (
       income: currentMonth.incoming,
       outcome: currentMonth.outgoing,
       categories,
-      transactions,
       lastMonth: {
         total: lastMonth.total,
         income: lastMonth.incoming,
@@ -237,20 +225,6 @@ const handleMonthlyDetail = async (
   });
 };
 
-export const POST = async (request: Request): Promise<Response> => {
-  try {
-    await connectDataBase();
-    const body: RequestBody = await request.json();
-    return await handleMonthlyDetail(body.userId, body.date);
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal Server Error";
-    return Response.json(
-      { message: "An error occurred on the server.", error: errorMessage },
-      { status: 500 },
-    );
-  }
-};
 
 export const GET = async (request: Request): Promise<Response> => {
   try {
@@ -272,7 +246,7 @@ export const GET = async (request: Request): Promise<Response> => {
       );
     }
 
-    return await handleMonthlyDetail(userId, date);
+    return await handleMonthSummary(userId, date);
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Internal Server Error";

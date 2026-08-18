@@ -1,22 +1,29 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import useSWR, { type KeyedMutator } from "swr";
 
 import DonatChart from "@/components/ui/donutChart";
-import Error from "@/components/ui/errorState";
+import ErrorStateComponent from "@/components/ui/errorState";
 import FinancialCard from "@/components/ui/financialCard";
 import LoadingSpinner from "@/components/ui/loadingSpinner";
+import Pagination from "@/components/ui/pagination";
 import { Text } from "@/components/ui/text";
+import TransactionCard, {
+  TransactionSkeleton,
+} from "@/components/ui/transactionCard";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
 import type {
   KeyLanguage,
-  MonthlyTransactionDetailData,
-  MonthlyTransactionDetailResponse,
+  MonthSummaryData,
+  MonthSummaryResponse,
   Setter,
+  TransactionsPaginatedData,
+  TransactionsPaginatedResponse,
 } from "@/types";
 import NoTransactionDataIcon from "assets/noTransactionDataIcon";
-import { PlusIcon } from "lucide-react-native";
+import { AlertCircle, PlusIcon, RefreshCw } from "lucide-react-native";
 
 interface ButtonChartGroupProps {
   cashFlowActive: "income" | "expense";
@@ -25,51 +32,106 @@ interface ButtonChartGroupProps {
 }
 
 interface ErrorStateProps {
-  setLoading: Setter<boolean>;
-  setData: Setter<MonthlyTransactionDetailData | null>;
-  token: string | null;
-  userId: string | undefined;
-  setError: Setter<boolean>;
+  onRetry: () => void;
+}
+
+interface TransactionErrorStateProps {
+  onRetry: () => void;
+  message?: string;
 }
 
 interface ChartProps {
   t: KeyLanguage;
   cashFlowActive: "income" | "expense";
   setCashFlowActive: Setter<"income" | "expense">;
-  data: MonthlyTransactionDetailData;
+  data: MonthSummaryData;
 }
 
-const getMonthlyTransactionsData = async (
-  userId: string,
-  setLoading: Setter<boolean>,
-  setData: Setter<MonthlyTransactionDetailData | null>,
-  token: string | null,
-  setError: Setter<boolean>,
-): Promise<void> => {
-  console.log("GOGOGO");
+interface TransactionSectionProps {
+  transactionList: TransactionsPaginatedData["transactions"];
+  loadingGetTransactions: boolean;
+  error: Error | null;
+  onRetry: () => void;
+}
 
-  try {
-    setError(false);
-    setLoading(true);
-    const res = await fetch(
-      `/api/getDetailMonthTransaction?userId=${encodeURIComponent(userId)}&date=${new Date().toISOString()}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    const dataResponse: MonthlyTransactionDetailResponse = await res.json();
-    console.log("dataResponse ->", dataResponse);
-    if (dataResponse?.data) {
-      setData(dataResponse.data);
-    }
-  } catch (error: unknown) {
-    console.error("Error fetching monthly transactions:", error);
-    setError(true);
-  } finally {
-    setLoading(false);
+interface UseMonthSummaryReturn {
+  data: MonthSummaryData | null;
+  isLoading: boolean;
+  error: Error | null;
+  mutate: KeyedMutator<MonthSummaryResponse>;
+}
+
+interface UseTransactionsReturn {
+  data: TransactionsPaginatedData | null;
+  isLoading: boolean;
+  isValidating: boolean;
+  error: Error | null;
+  mutate: KeyedMutator<TransactionsPaginatedResponse>;
+}
+
+const swrFetcher = (url: string, token: string | null) => async () => {
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.message || "Failed to fetch data from server");
   }
+
+  return res.json();
+};
+
+const useMonthSummary = (
+  userId: string | undefined,
+  token: string | null,
+  date?: string | Date,
+): UseMonthSummaryReturn => {
+  const targetDate = date
+    ? new Date(date).toISOString()
+    : new Date().toISOString();
+  const url = `/api/getMonthSummary?userId=${encodeURIComponent(userId ?? "")}&date=${targetDate}`;
+
+  const { data, error, isLoading, mutate } = useSWR<MonthSummaryResponse>(
+    ["get-monthly-transactions", userId, targetDate], //listener
+    swrFetcher(url, token), //call api
+  );
+
+  return {
+    data: data?.data ?? null,
+    isLoading: isLoading && !data,
+    error: error ?? null,
+    mutate,
+  };
+};
+
+const useTransactions = (
+  userId: string | undefined,
+  token: string | null,
+  page = 1,
+  limit = 10,
+  date?: string | Date,
+): UseTransactionsReturn => {
+  const targetDate = date
+    ? new Date(date).toISOString()
+    : new Date().toISOString();
+  const url = `/api/getTransactions?userId=${encodeURIComponent(userId ?? "")}&date=${targetDate}&page=${page}&limit=${limit}`;
+
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<TransactionsPaginatedResponse>(
+      ["get-transactions", userId, targetDate, page, limit], // listener
+      swrFetcher(url, token), //call api
+    );
+
+  return {
+    data: data?.data ?? null,
+    isLoading: isLoading && !data,
+    isValidating,
+    error: error ?? null,
+    mutate,
+  };
 };
 
 const ButtonChartGroup = ({
@@ -159,114 +221,206 @@ const ChartSection = ({
   </View>
 );
 
-const ErrorState = ({
-  setLoading,
-  setData,
-  token,
-  userId,
-  setError,
-}: ErrorStateProps): React.JSX.Element => {
+const ErrorState = ({ onRetry }: ErrorStateProps): React.JSX.Element => {
   return (
     <View className="w-full bg-white h-full">
-      <Error
-        onRetry={() => {
-          if (userId) {
-            getMonthlyTransactionsData(
-              userId,
-              setLoading,
-              setData,
-              token,
-              setError,
-            );
-          }
-        }}
-      />
+      <ErrorStateComponent onRetry={onRetry} />
     </View>
   );
 };
 
-const useGetMonthlyTransactionsDataEffect = (
-  setLoading: Setter<boolean>,
-  setData: Setter<MonthlyTransactionDetailData | null>,
-  token: string | null,
-  user: string | undefined,
-  setError: Setter<boolean>,
-): void => {
-  useEffect(() => {
-    if (user) {
-      getMonthlyTransactionsData(user, setLoading, setData, token, setError);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+const TransactionErrorState = ({
+  onRetry,
+  message,
+}: TransactionErrorStateProps): React.JSX.Element => {
+  const { t } = useLanguageStore();
+
+  return (
+    <View className="items-center justify-center py-8 px-4 bg-slate-50/80 rounded-xl border border-slate-100 my-2">
+      <View className="w-12 h-12 rounded-full bg-red-50 items-center justify-center mb-3">
+        <AlertCircle size={24} color="#EF4444" strokeWidth={2} />
+      </View>
+      <Text className="text-base font-bold text-[#20304E] text-center mb-1">
+        {t("errorTitle")}
+      </Text>
+      <Text className="text-xs text-slate-500 text-center mb-4 max-w-65 leading-relaxed">
+        {message || t("errorDescription")}
+      </Text>
+      <Pressable
+        onPress={onRetry}
+        className="flex-row items-center justify-center gap-2 bg-[#20304E] active:bg-[#152136] px-4 py-2.5 rounded-lg shadow-sm"
+      >
+        <RefreshCw size={14} color="#FFFFFF" strokeWidth={2.2} />
+        <Text className="text-white text-xs font-semibold tracking-wide">
+          {t("retry")}
+        </Text>
+      </Pressable>
+    </View>
+  );
+};
+
+const TransactionSection = ({
+  transactionList,
+  loadingGetTransactions,
+  error,
+  onRetry,
+}: TransactionSectionProps): React.JSX.Element => {
+  if (loadingGetTransactions) {
+    return (
+      <ScrollView
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={true}
+        className="max-h-96"
+      >
+        {[...Array(5)].map((_, index) => (
+          <TransactionSkeleton key={index} />
+        ))}
+      </ScrollView>
+    );
+  }
+
+  if (error && !loadingGetTransactions) {
+    return <TransactionErrorState onRetry={onRetry} message={error?.message} />;
+  }
+
+  if (!transactionList || transactionList.length === 0) {
+    return <></>;
+  }
+
+  return (
+    <ScrollView
+      nestedScrollEnabled={true}
+      showsVerticalScrollIndicator={true}
+      className="max-h-96"
+    >
+      {transactionList?.map((item, index) => (
+        <View
+          key={index}
+          className={`p-2 ${
+            index === transactionList.length - 1
+              ? "border-b-0"
+              : "border-b border-[#D7E2FF]"
+          }`}
+        >
+          <TransactionCard
+            title={item.description}
+            date={item.date}
+            category={item.category}
+            type={item.type}
+            amount={item.amount}
+          />
+        </View>
+      ))}
+    </ScrollView>
+  );
 };
 
 export default function HomeScreen(): React.JSX.Element {
   const { user, token } = useAuthStore((state) => state);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [data, setData] = useState<MonthlyTransactionDetailData | null>(null);
-  const [error, setError] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
   const [cashFlowActive, setCashFlowActive] = useState<"income" | "expense">(
     "expense",
   );
   const { t } = useLanguageStore();
 
-  useGetMonthlyTransactionsDataEffect(
-    setLoading,
-    setData,
-    token,
-    user?.userId,
-    setError,
-  );
+  const {
+    data: monthSummary,
+    isLoading: isMonthSummaryLoading,
+    error: monthSummaryError,
+    mutate: mutateMonthSummary,
+  } = useMonthSummary(user?.userId, token);
 
-  if (loading) {
+  const {
+    data: transactions,
+    isLoading: isTransactionsLoading,
+    isValidating: isTransactionsValidating,
+    error: transactionsError,
+    mutate: mutateTransactions,
+  } = useTransactions(user?.userId, token, page, 10);
+
+  if (isMonthSummaryLoading) {
     return <LoadingSpinner />;
   }
 
-  if (error) {
+  if (monthSummaryError) {
     return (
       <ErrorState
-        setLoading={setLoading}
-        setData={setData}
-        token={token}
-        userId={user?.userId}
-        setError={setError}
+        onRetry={() => {
+          mutateMonthSummary();
+        }}
       />
     );
   }
 
   return (
-    <SafeAreaView className="w-full bg-white h-full">
-      <ScrollView className="p-4 gap-4">
+    <SafeAreaView>
+      <ScrollView
+        className="p-4 gap-4"
+        contentContainerStyle={{ paddingBottom: 16 }}
+      >
         <FinancialCard
           type="total"
-          amount={data?.total?.toString() ?? "0"}
-          data={data?.comparison?.percentage ?? undefined}
-          status={data?.comparison?.status ?? undefined}
+          amount={monthSummary?.total?.toString() ?? "0"}
+          data={monthSummary?.comparison?.percentage ?? undefined}
+          status={monthSummary?.comparison?.status ?? undefined}
         />
         <View className="flex-row gap-4 mt-2">
           <View className="flex-1">
             <FinancialCard
               type="incoming"
-              amount={data?.income?.toString() ?? "0"}
+              amount={monthSummary?.income?.toString() ?? "0"}
             />
           </View>
           <View className="flex-1">
             <FinancialCard
               type="outgoing"
-              amount={data?.outcome?.toString() ?? "0"}
+              amount={monthSummary?.outcome?.toString() ?? "0"}
             />
           </View>
         </View>
-        {/* chart section */}
-        {data?.transactions.length === 0 ? (
+
+        {/* Chart Section */}
+        {!monthSummary ? (
           <NoTransactionData t={t} />
         ) : (
           <ChartSection
             t={t}
             cashFlowActive={cashFlowActive}
             setCashFlowActive={setCashFlowActive}
-            data={data!}
+            data={monthSummary}
           />
+        )}
+
+        {/* Transaction History & Pagination */}
+        {monthSummary && (
+          <View className="flex p-4 pb-1 bg-white mt-4 rounded-xl">
+            <View className="flex flex-row justify-between py-1">
+              <Text className="text-xl font-bold">
+                {t("historyThisMonthTitle")}
+              </Text>
+              <Pressable>
+                <Text>{t("viewTransactionButton")}</Text>
+              </Pressable>
+            </View>
+            <TransactionSection
+              loadingGetTransactions={
+                isTransactionsLoading ||
+                (isTransactionsValidating && !transactions)
+              }
+              transactionList={transactions?.transactions ?? []}
+              error={transactionsError}
+              onRetry={() => {
+                mutateTransactions();
+              }}
+            />
+            {!isTransactionsLoading && !transactionsError && (
+              <Pagination
+                totalPages={transactions?.pagination.totalPages ?? 1}
+                page={transactions?.pagination.page ?? page}
+                setPage={(newPage: number) => setPage(newPage)}
+              />
+            )}
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>

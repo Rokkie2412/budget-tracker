@@ -68,6 +68,40 @@ const DonatChart = ({
     200,
   );
 
+  if (!data || data.length === 0) {
+    const emptyPieData = [{ value: 100, color: "#E2E8F0", text: "" }];
+    return (
+      <View className="flex w-full">
+        <View className="flex items-center justify-center py-2">
+          <PieChart
+            donut
+            radius={calculatedRadius}
+            innerRadius={calculatedInnerRadius}
+            innerCircleColor="#FFFFFF"
+            data={emptyPieData}
+            centerLabelComponent={() => (
+              <View className="items-center justify-center">
+                <Text className="text-base font-bold text-[#94A3B8]">0</Text>
+                <Text className="text-[10px] font-semibold text-gray-400 tracking-wider">
+                  {type === "income"
+                    ? t("chartMiddleTextIncome")
+                    : t("chartMiddleTextExpense")}
+                </Text>
+              </View>
+            )}
+          />
+        </View>
+        <View className="mt-4 w-full bg-[#F8FAFC] border border-dashed border-[#CBD5E1] rounded-xl p-4 items-center justify-center">
+          <Text className="text-sm font-medium text-[#64748B] text-center">
+            {type === "income"
+              ? t("noCategoryDataIncome")
+              : t("noCategoryDataExpense")}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
   const pieData = mapNewPieData(data);
 
   return (

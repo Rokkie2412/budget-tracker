@@ -43,6 +43,10 @@ export const translations = {
     noTransactionData:
       "Catat setiap pengeluaran dan pemasukan untuk melihat laporan keuangan yang rapi dan terukur.",
     noTransactionDataButton: "Tambah Transaksi",
+    noCategoryDataExpense: "Belum ada catatan pengeluaran di bulan ini",
+    noCategoryDataIncome: "Belum ada catatan pemasukan di bulan ini",
+    historyThisMonthTitle: "Riwayat Transaksi",
+    viewTransactionButton: "Lihat Detail",
   },
   en: {
     welcome: "Welcome",
@@ -88,6 +92,10 @@ export const translations = {
     noTransactionData:
       "Record every expense and income to see a neat and measurable financial report.",
     noTransactionDataButton: "Add Transaction",
+    noCategoryDataExpense: "No expense records found for this month",
+    noCategoryDataIncome: "No income records found for this month",
+    historyThisMonthTitle: "Transaction History",
+    viewTransactionButton: "See Detail",
   },
 } as const;
 

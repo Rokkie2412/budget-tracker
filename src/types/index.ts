@@ -62,10 +62,41 @@ export interface CategoryBreakdown {
   income: CategoryBreakdownItem<IncomeCategory>[];
 }
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalTransactions: number;
+  totalPages: number;
+}
+
+export type MonthSummaryData = MonthSummary & {
+  year: number;
+  month: number;
+  categories: CategoryBreakdown;
+  lastMonth: MonthSummary;
+  comparison: MonthComparison;
+};
+
+export type MonthSummaryResponse = {
+  message: string;
+  data: MonthSummaryData;
+};
+
+export type TransactionsPaginatedData = {
+  transactions: ITransaction[];
+  pagination: PaginationMeta;
+};
+
+export type TransactionsPaginatedResponse = {
+  message: string;
+  data: TransactionsPaginatedData;
+};
+
 export type MonthlyTransactionDetailData = MonthSummary & {
   year: number;
   month: number;
   transactions: ITransaction[];
+  pagination: PaginationMeta;
   categories: CategoryBreakdown;
   lastMonth: MonthSummary;
   comparison: MonthComparison;
