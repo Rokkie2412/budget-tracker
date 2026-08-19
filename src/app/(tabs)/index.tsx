@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import useSWR, { type KeyedMutator } from "swr";
 
 import DonatChart from "@/components/ui/donutChart";
@@ -22,6 +22,7 @@ import type {
   TransactionsPaginatedData,
   TransactionsPaginatedResponse,
 } from "@/types";
+import { swrFetcher } from "@/utils";
 import NoTransactionDataIcon from "assets/noTransactionDataIcon";
 import { AlertCircle, PlusIcon, RefreshCw } from "lucide-react-native";
 
@@ -59,6 +60,7 @@ interface UseMonthSummaryReturn {
   isLoading: boolean;
   error: Error | null;
   mutate: KeyedMutator<MonthSummaryResponse>;
+  isValidating: boolean;
 }
 
 interface UseTransactionsReturn {
@@ -68,21 +70,6 @@ interface UseTransactionsReturn {
   error: Error | null;
   mutate: KeyedMutator<TransactionsPaginatedResponse>;
 }
-
-const swrFetcher = (url: string, token: string | null) => async () => {
-  const res = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!res.ok) {
-    const errorBody = await res.json().catch(() => ({}));
-    throw new Error(errorBody.message || "Failed to fetch data from server");
-  }
-
-  return res.json();
-};
 
 const useMonthSummary = (
   userId: string | undefined,
@@ -94,14 +81,16 @@ const useMonthSummary = (
     : new Date().toISOString();
   const url = `/api/getMonthSummary?userId=${encodeURIComponent(userId ?? "")}&date=${targetDate}`;
 
-  const { data, error, isLoading, mutate } = useSWR<MonthSummaryResponse>(
-    ["get-monthly-transactions", userId, targetDate], //listener
-    swrFetcher(url, token), //call api
-  );
+  const { data, error, isLoading, isValidating, mutate } =
+    useSWR<MonthSummaryResponse>(
+      ["get-monthly-transactions", userId, targetDate], //listener
+      swrFetcher(url, token), //call api
+    );
 
   return {
     data: data?.data ?? null,
     isLoading: isLoading && !data,
+    isValidating,
     error: error ?? null,
     mutate,
   };
@@ -326,6 +315,7 @@ export default function HomeScreen(): React.JSX.Element {
   const {
     data: monthSummary,
     isLoading: isMonthSummaryLoading,
+    isValidating: isMonthSummaryValidating,
     error: monthSummaryError,
     mutate: mutateMonthSummary,
   } = useMonthSummary(user?.userId, token);
@@ -337,6 +327,12 @@ export default function HomeScreen(): React.JSX.Element {
     error: transactionsError,
     mutate: mutateTransactions,
   } = useTransactions(user?.userId, token, page, 10);
+
+  const handleRefresh = (): void => {
+    setPage(1);
+    mutateMonthSummary();
+    mutateTransactions();
+  };
 
   if (isMonthSummaryLoading) {
     return <LoadingSpinner />;
@@ -353,76 +349,84 @@ export default function HomeScreen(): React.JSX.Element {
   }
 
   return (
-    <SafeAreaView>
-      <ScrollView
-        className="p-4 gap-4"
-        contentContainerStyle={{ paddingBottom: 16 }}
-      >
-        <FinancialCard
-          type="total"
-          amount={monthSummary?.total?.toString() ?? "0"}
-          data={monthSummary?.comparison?.percentage ?? undefined}
-          status={monthSummary?.comparison?.status ?? undefined}
-        />
-        <View className="flex-row gap-4 mt-2">
-          <View className="flex-1">
-            <FinancialCard
-              type="incoming"
-              amount={monthSummary?.income?.toString() ?? "0"}
+    <SafeAreaProvider>
+      <SafeAreaView>
+        <ScrollView
+          className="p-4 gap-4"
+          contentContainerStyle={{ paddingBottom: 16 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={isMonthSummaryValidating || isTransactionsValidating}
+              onRefresh={handleRefresh}
             />
-          </View>
-          <View className="flex-1">
-            <FinancialCard
-              type="outgoing"
-              amount={monthSummary?.outcome?.toString() ?? "0"}
-            />
-          </View>
-        </View>
-
-        {/* Chart Section */}
-        {!monthSummary ? (
-          <NoTransactionData t={t} />
-        ) : (
-          <ChartSection
-            t={t}
-            cashFlowActive={cashFlowActive}
-            setCashFlowActive={setCashFlowActive}
-            data={monthSummary}
+          }
+        >
+          <FinancialCard
+            type="total"
+            amount={monthSummary?.total?.toString() ?? "0"}
+            data={monthSummary?.comparison?.percentage ?? undefined}
+            status={monthSummary?.comparison?.status ?? undefined}
           />
-        )}
-
-        {/* Transaction History & Pagination */}
-        {monthSummary && (
-          <View className="flex p-4 pb-1 bg-white mt-4 rounded-xl">
-            <View className="flex flex-row justify-between py-1">
-              <Text className="text-xl font-bold">
-                {t("historyThisMonthTitle")}
-              </Text>
-              <Pressable>
-                <Text>{t("viewTransactionButton")}</Text>
-              </Pressable>
-            </View>
-            <TransactionSection
-              loadingGetTransactions={
-                isTransactionsLoading ||
-                (isTransactionsValidating && !transactions)
-              }
-              transactionList={transactions?.transactions ?? []}
-              error={transactionsError}
-              onRetry={() => {
-                mutateTransactions();
-              }}
-            />
-            {!isTransactionsLoading && !transactionsError && (
-              <Pagination
-                totalPages={transactions?.pagination.totalPages ?? 1}
-                page={transactions?.pagination.page ?? page}
-                setPage={(newPage: number) => setPage(newPage)}
+          <View className="flex-row gap-4 mt-2">
+            <View className="flex-1">
+              <FinancialCard
+                type="incoming"
+                amount={monthSummary?.income?.toString() ?? "0"}
               />
-            )}
+            </View>
+            <View className="flex-1">
+              <FinancialCard
+                type="outgoing"
+                amount={monthSummary?.outcome?.toString() ?? "0"}
+              />
+            </View>
           </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+
+          {/* Chart Section */}
+          {!monthSummary ? (
+            <NoTransactionData t={t} />
+          ) : (
+            <ChartSection
+              t={t}
+              cashFlowActive={cashFlowActive}
+              setCashFlowActive={setCashFlowActive}
+              data={monthSummary}
+            />
+          )}
+
+          {/* Transaction History & Pagination */}
+          {monthSummary && (
+            <View className="flex p-4 pb-1 bg-white mt-4 rounded-xl">
+              <View className="flex flex-row justify-between py-1">
+                <Text className="text-xl font-bold">
+                  {t("historyThisMonthTitle")}
+                </Text>
+                <Pressable>
+                  <Text>{t("viewTransactionButton")}</Text>
+                </Pressable>
+              </View>
+              <TransactionSection
+                loadingGetTransactions={
+                  isTransactionsLoading ||
+                  (isTransactionsValidating && !transactions)
+                }
+                transactionList={transactions?.transactions ?? []}
+                error={transactionsError}
+                onRetry={() => {
+                  mutateTransactions();
+                }}
+              />
+              {!isTransactionsLoading && !transactionsError && (
+                <Pagination
+                  totalPages={transactions?.pagination.totalPages ?? 1}
+                  page={transactions?.pagination.page ?? page}
+                  setPage={(newPage: number) => setPage(newPage)}
+                />
+              )}
+            </View>
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

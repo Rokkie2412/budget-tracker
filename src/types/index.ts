@@ -15,6 +15,7 @@ export type IncomeCategory = (typeof BUDGET_CATEGORIES_INCOME)[number];
 export type BudgetCategory = ExpenseCategory | IncomeCategory;
 
 export interface ITransaction {
+  _id?: string;
   userId: string;
   amount: number;
   description: string;

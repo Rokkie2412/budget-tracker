@@ -47,6 +47,16 @@ export const translations = {
     noCategoryDataIncome: "Belum ada catatan pemasukan di bulan ini",
     historyThisMonthTitle: "Riwayat Transaksi",
     viewTransactionButton: "Lihat Detail",
+    failedLoadTransactionsTitle: "Gagal memuat daftar transaksi",
+    failedLoadTransactionsDescription:
+      "Terjadi kesalahan saat memuat data transaksi. Silakan coba lagi.",
+    refresh: "Muat Ulang",
+    thisMonth: "Bulan Ini",
+    last7Days: "7 Hari Terakhir",
+    last30Days: "30 Hari Terakhir",
+    customDate: "Tanggal Kustom",
+    transactions: "Transaksi",
+    all: "Semua",
   },
   en: {
     welcome: "Welcome",
@@ -96,6 +106,16 @@ export const translations = {
     noCategoryDataIncome: "No income records found for this month",
     historyThisMonthTitle: "Transaction History",
     viewTransactionButton: "See Detail",
+    failedLoadTransactionsTitle: "Failed to load transaction list",
+    failedLoadTransactionsDescription:
+      "An error occurred while loading transaction data. Please try again.",
+    refresh: "Refresh",
+    thisMonth: "This Month",
+    last7Days: "Last 7 Days",
+    last30Days: "Last 30 Days",
+    customDate: "Custom Date",
+    transactions: "Transactions",
+    all: "All",
   },
 } as const;
 
