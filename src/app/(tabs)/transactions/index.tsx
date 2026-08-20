@@ -1,0 +1,488 @@
+import EmptyComponent from "@/components/ui/emptyState";
+import ErrorComponent from "@/components/ui/errorState";
+import LoadingSpinner from "@/components/ui/loadingSpinner";
+import Pagination from "@/components/ui/pagination";
+import { Text } from "@/components/ui/text";
+import TransactionCard from "@/components/ui/transactionCard";
+import {
+  BUDGET_CATEGORIES_EXPENSE,
+  BUDGET_CATEGORIES_INCOME,
+} from "@/constants";
+import { useRefetchWhenFocus } from "@/hooks";
+import { useAuthStore } from "@/stores/authStore";
+import { useLanguageStore } from "@/stores/languageStore";
+import {
+  Setter,
+  TransactionsPaginatedData,
+  TransactionsPaginatedResponse,
+} from "@/types";
+import {
+  DateFilterType,
+  FilterCategoryExpenseType,
+  FilterCategoryIncomeType,
+  FilterCategoryType,
+  FilterDateList,
+  TypeFilterProps,
+  UseTransactionParams,
+  useTranasctionType,
+} from "@/types/transactions";
+import { swrFetcher } from "@/utils";
+import { getDateRangeByFilter } from "@/utils/transactions";
+import { useEffect, useState } from "react";
+import { Pressable, ScrollView, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import useSWR from "swr";
+
+const useTransaction = ({
+  userId,
+  page,
+  token,
+  startDate,
+  endDate,
+  transactionType,
+  category,
+}: UseTransactionParams): useTranasctionType => {
+  const targetDate = new Date().toISOString();
+  const params = new URLSearchParams({
+    userId: userId ?? "",
+    page: String(page),
+    limit: "10",
+    date: targetDate,
+  });
+  if (startDate) params.set("startDate", startDate.toString());
+  if (endDate) params.set("endDate", endDate.toString());
+  if (transactionType && transactionType !== "all") {
+    params.set("type", transactionType);
+  }
+  if (category && category !== "all") {
+    params.set("category", category);
+  }
+  const url = `/api/getTransactions?${params.toString()}`;
+  const { data, error, isLoading, mutate } =
+    useSWR<TransactionsPaginatedResponse>(
+      [
+        "get-list-transaction",
+        userId,
+        startDate,
+        page,
+        endDate,
+        transactionType,
+        category,
+      ],
+      swrFetcher(url, token),
+    );
+  return {
+    data: data?.data ?? null,
+    isLoading: isLoading && !data,
+    error: error ?? null,
+    mutate,
+  };
+};
+
+const LoadingSpinnerState = () => (
+  <View className="flex flex-1 w-full h-full items-center justify-center">
+    <LoadingSpinner />
+  </View>
+);
+
+const DateFilter = ({
+  t,
+  activeValue,
+  setActiveIndex,
+}: DateFilterType): React.ReactElement => {
+  const onPress = (value: FilterDateList) => {
+    setActiveIndex(value);
+  };
+
+  const listButton = [
+    {
+      label: t("thisMonth"),
+      value: "thisMonth",
+      key: "1",
+      onPress: (): void => onPress("thisMonth"),
+    },
+    {
+      label: t("last7Days"),
+      value: "last7Days",
+      key: "2",
+      onPress: () => onPress("last7Days"),
+    },
+    {
+      label: t("last30Days"),
+      value: "last30Days",
+      key: "3",
+      onPress: () => onPress("last30Days"),
+    },
+    {
+      label: t("customDate"),
+      value: "customDate",
+      key: "4",
+      onPress: () => onPress("customDate"),
+    },
+  ];
+  return (
+    <View className="flex flex-col w-full">
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerClassName="pb-2 gap-1"
+      >
+        {listButton.map((item) => (
+          <Pressable
+            key={item.key}
+            className={`p-3 rounded-full  flex justify-center items-center ${activeValue === item.value ? "bg-[#20304E]" : "bg-[#EEF3FA]"}`}
+            onPress={item.onPress}
+          >
+            <Text
+              className={`text-center font-semibold ${activeValue === item.value ? "text-[#EAF1FF]" : "text-[#1E293B]"}`}
+            >
+              {item.label}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
+  );
+};
+
+const TypeFilter = ({
+  t,
+  activeValue,
+  setActiveValue,
+}: TypeFilterProps): React.ReactElement => {
+  const listButton = [
+    {
+      label: t("all"),
+      value: "all",
+      key: "0",
+      onPress: () => setActiveValue("all"),
+    },
+    {
+      label: t("incoming"),
+      value: "income",
+      key: "1",
+      onPress: () => setActiveValue("income"),
+    },
+    {
+      label: t("outgoing"),
+      value: "expense",
+      key: "2",
+      onPress: () => setActiveValue("expense"),
+    },
+  ];
+  return (
+    <View className="flex-row bg-[#EEF3FA] p-1.5 rounded-xl">
+      {listButton.map((item) => (
+        <Pressable
+          key={item.key}
+          onPress={item.onPress}
+          className={`flex-1 py-2.5 items-center justify-center rounded-lg ${
+            activeValue === item.value ? "bg-[#1C2A44]" : "bg-transparent"
+          }`}
+        >
+          <Text
+            className={`text-center font-semibold ${
+              activeValue === item.value ? "text-[#EAF1FF]" : "text-[#1E293B]"
+            }`}
+          >
+            {item.label}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+};
+
+const FilterCategoryIncome = ({
+  t,
+  activeValue,
+  setActiveValue,
+}: FilterCategoryIncomeType): React.ReactElement[] => {
+  const newMappedList = () => {
+    return BUDGET_CATEGORIES_INCOME.map((item, idx) => ({
+      label: item,
+      value: item,
+      key: String(idx),
+      onPress: () => {
+        if (activeValue === item) {
+          setActiveValue(null);
+        } else {
+          setActiveValue(item);
+        }
+      },
+    }));
+  };
+
+  return newMappedList().map((item) => (
+    <Pressable
+      key={item.key}
+      onPress={item.onPress}
+      className={`px-4 py-2 items-center justify-center rounded-md ${
+        activeValue === item.value ? "bg-[#20304E]" : "bg-[#EEF3FA]"
+      }`}
+    >
+      <Text
+        className={`text-center text-sm font-semibold ${
+          activeValue === item.value ? "text-[#EAF1FF]" : "text-[#1E293B]"
+        }`}
+      >
+        {item.label}
+      </Text>
+    </Pressable>
+  ));
+};
+
+const FilterCategoryExpense = ({
+  t,
+  activeValue,
+  setActiveValue,
+}: FilterCategoryExpenseType): React.ReactElement[] => {
+  const newMappedList = () => {
+    return BUDGET_CATEGORIES_EXPENSE.map((item, idx) => ({
+      label: item,
+      value: item,
+      key: String(idx),
+      onPress: () => {
+        if (activeValue === item) {
+          setActiveValue(null);
+        } else {
+          setActiveValue(item);
+        }
+      },
+    }));
+  };
+
+  return newMappedList().map((item) => (
+    <Pressable
+      key={item.key}
+      onPress={item.onPress}
+      className={`px-4 py-2 items-center justify-center rounded-md ${
+        activeValue === item.value ? "bg-[#20304E]" : "bg-[#EEF3FA]"
+      }`}
+    >
+      <Text
+        className={`text-center text-sm font-semibold ${
+          activeValue === item.value ? "text-[#EAF1FF]" : "text-[#1E293B]"
+        }`}
+      >
+        {item.label}
+      </Text>
+    </Pressable>
+  ));
+};
+
+const FilterCategory = ({
+  t,
+  activeValue,
+  setActiveValue,
+  type,
+}: FilterCategoryType): React.ReactElement => {
+  return (
+    <View className="w-full mt-2">
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerClassName="flex-row items-center gap-2 pb-1"
+      >
+        {(type === "all" || type === "income") && (
+          <FilterCategoryIncome
+            activeValue={
+              activeValue as (typeof BUDGET_CATEGORIES_INCOME)[number]
+            }
+            setActiveValue={
+              setActiveValue as Setter<
+                (typeof BUDGET_CATEGORIES_INCOME)[number] | null
+              >
+            }
+            t={t}
+          />
+        )}
+        {(type === "all" || type === "expense") && (
+          <FilterCategoryExpense
+            activeValue={
+              activeValue as (typeof BUDGET_CATEGORIES_EXPENSE)[number]
+            }
+            setActiveValue={
+              setActiveValue as Setter<
+                (typeof BUDGET_CATEGORIES_EXPENSE)[number] | null
+              >
+            }
+            t={t}
+          />
+        )}
+      </ScrollView>
+    </View>
+  );
+};
+
+const useClearCategoryEffect = (
+  filterType: "all" | "income" | "expense",
+  filterCategory: string,
+  setFilterCategory: Setter<
+    | (typeof BUDGET_CATEGORIES_INCOME)[number]
+    | (typeof BUDGET_CATEGORIES_EXPENSE)[number]
+    | null
+  >,
+) => {
+  useEffect(() => {
+    if (filterCategory) {
+      setFilterCategory(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterType]);
+};
+
+const ContentBody = ({
+  data,
+  page,
+  setPage,
+}: {
+  data: TransactionsPaginatedData | null;
+  page: number;
+  setPage: Setter<number>;
+}) => {
+  return (
+    <>
+      <ScrollView
+        nestedScrollEnabled
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-8"
+      >
+        <View className=" flex flex-1 w-full">
+          {data?.transactions.map((item, index) => (
+            <View
+              key={item._id}
+              className={`flex w-full ${
+                index !== data.transactions.length - 1
+                  ? "border-b border-[#E2E8F0]"
+                  : ""
+              } py-2`}
+            >
+              <TransactionCard
+                key={item._id}
+                title={item.description}
+                amount={item.amount}
+                date={new Date(item.date)}
+                type={item.type}
+                category={item.category}
+              />
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+      <Pagination
+        totalPages={data?.pagination.totalPages ?? 1}
+        page={data?.pagination.page ?? page}
+        setPage={(newPage: number) => setPage(newPage)}
+      />
+    </>
+  );
+};
+
+const MainContent = ({
+  loading,
+  error,
+  data,
+  page,
+  setPage,
+  mutate,
+}: {
+  loading: boolean;
+  error: Error | null;
+  data: TransactionsPaginatedData | null;
+  page: number;
+  setPage: Setter<number>;
+  mutate: () => void;
+}): React.ReactElement => {
+  if (loading) {
+    return <LoadingSpinnerState />;
+  }
+
+  if (error) {
+    return <ErrorComponent onRetry={mutate} />;
+  }
+
+  if (!data || data.transactions.length === 0) {
+    return <EmptyComponent />;
+  }
+
+  return <ContentBody data={data} page={page} setPage={setPage} />;
+};
+
+const TransactionList = () => {
+  const { t } = useLanguageStore();
+  const { user, token } = useAuthStore((state) => state);
+  const [page, setPage] = useState<number>(1);
+  const [filterDate, setFilterDate] = useState<FilterDateList>("thisMonth");
+  const [filterCategory, setFilterCategory] = useState<
+    | (typeof BUDGET_CATEGORIES_INCOME)[number]
+    | (typeof BUDGET_CATEGORIES_EXPENSE)[number]
+    | null
+  >(null);
+  const [filterType, setFilterType] = useState<"all" | "income" | "expense">(
+    "all",
+  );
+
+  const dateRange = getDateRangeByFilter(filterDate);
+
+  const { data, isLoading, error, mutate } = useTransaction({
+    userId: user?.userId,
+    page,
+    token,
+    startDate: dateRange?.startDate.toISOString(),
+    endDate: dateRange?.endDate.toISOString(),
+    transactionType: filterType,
+    category: filterCategory,
+  });
+
+  useClearCategoryEffect(
+    filterType,
+    filterCategory as string,
+    setFilterCategory,
+  );
+
+  useRefetchWhenFocus(mutate);
+
+  console.log("list transaction", data);
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView>
+        <View className="flex flex-col h-full w-full px-6 bg-[#FFFFFF]">
+          <Text className="text-4xl font-bold text-[#20304E] text-center py-6">
+            {t("transactions")}
+          </Text>
+          <View className="w-full">
+            <DateFilter
+              t={t}
+              activeValue={filterDate}
+              setActiveIndex={setFilterDate}
+            />
+            <TypeFilter
+              t={t}
+              activeValue={filterType}
+              setActiveValue={setFilterType}
+            />
+            <FilterCategory
+              t={t}
+              activeValue={filterCategory as string}
+              setActiveValue={setFilterCategory}
+              type={filterType}
+            />
+          </View>
+          <View className="flex flex-3/4 w-full mt-4 bg-[#FFFFFF] rounded-xl p-4 mb-4 shadow-sm">
+            <MainContent
+              loading={isLoading}
+              error={error}
+              data={data}
+              page={page}
+              setPage={setPage}
+              mutate={mutate}
+            />
+          </View>
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
+};
+
+export default TransactionList;

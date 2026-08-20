@@ -34,7 +34,7 @@ export const BUDGET_CATEGORIES_EXPENSE = [
   "Transportation",
   "Traveling",
   "Debt",
-  "Other",
+  "Other Expense",
 ] as const;
 
 export const BUDGET_CATEGORIES_INCOME = [

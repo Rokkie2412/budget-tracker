@@ -12,6 +12,7 @@ import { Text } from "@/components/ui/text";
 import TransactionCard, {
   TransactionSkeleton,
 } from "@/components/ui/transactionCard";
+import { useRefetchWhenFocus } from "@/hooks";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
 import type {
@@ -333,6 +334,8 @@ export default function HomeScreen(): React.JSX.Element {
     mutateMonthSummary();
     mutateTransactions();
   };
+
+  useRefetchWhenFocus(handleRefresh);
 
   if (isMonthSummaryLoading) {
     return <LoadingSpinner />;

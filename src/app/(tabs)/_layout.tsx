@@ -25,7 +25,7 @@ export default function TabLayout(): React.JSX.Element {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="dashboard"
         options={{
           title: t("dashboardBottomMenu"),
           tabBarIcon: ({ color, size }): React.JSX.Element => (
@@ -34,7 +34,7 @@ export default function TabLayout(): React.JSX.Element {
         }}
       />
       <Tabs.Screen
-        name="transaction"
+        name="transactions"
         options={{
           title: t("transactionBottomMenu"),
           tabBarIcon: ({ color, size }): React.JSX.Element => (

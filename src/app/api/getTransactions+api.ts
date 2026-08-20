@@ -1,13 +1,24 @@
-import connectDataBase from "@/lib/connectDataBase";
+import {
+  BUDGET_CATEGORIES_EXPENSE,
+  BUDGET_CATEGORIES_INCOME,
+} from "@/constants";
+import connectDB from "@/lib/connectDataBase";
 import { hashUserId } from "@/lib/hashUserId";
 import { verifyAuth } from "@/lib/jwtToken";
 import { Transaction } from "@/models";
+
+const ALL_CATEGORIES: readonly string[] = [
+  ...BUDGET_CATEGORIES_EXPENSE,
+  ...BUDGET_CATEGORIES_INCOME,
+];
 
 const handleGetTransactions = async (
   userId: string,
   dateInput?: string | Date,
   startDateInput?: string | Date,
   endDateInput?: string | Date,
+  transactionType?: string,
+  categoryInput?: string,
   pageInput = 1,
   limitInput = 10,
 ): Promise<Response> => {
@@ -50,10 +61,26 @@ const handleGetTransactions = async (
     rangeEnd = new Date(year, month + 1, 0, 23, 59, 59, 999);
   }
 
-  const transactionFilter = {
+  const transactionFilter: Record<string, unknown> = {
     userId: hashedUserId,
     date: { $gte: rangeStart, $lte: rangeEnd },
   };
+
+  if (transactionType) {
+    const normalizedType = transactionType.trim().toUpperCase();
+    if (normalizedType === "IN" || normalizedType === "INCOME") {
+      transactionFilter.type = "IN";
+    } else if (normalizedType === "OUT" || normalizedType === "EXPENSE") {
+      transactionFilter.type = "OUT";
+    }
+  }
+
+  if (categoryInput && categoryInput.trim() !== "" && categoryInput !== "all") {
+    const matchedCategory = ALL_CATEGORIES.find((cat) => cat === categoryInput);
+    if (matchedCategory) {
+      transactionFilter.category = matchedCategory;
+    }
+  }
 
   const [totalTransactions, transactions] = await Promise.all([
     Transaction.countDocuments(transactionFilter),
@@ -99,12 +126,14 @@ export const GET = async (request: Request): Promise<Response> => {
       return errorResponse!;
     }
 
-    await connectDataBase();
+    await connectDB();
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId") ?? "";
     const date = searchParams.get("date") ?? undefined;
     const startDate = searchParams.get("startDate") ?? undefined;
     const endDate = searchParams.get("endDate") ?? undefined;
+    const transactionType = searchParams.get("type") ?? undefined;
+    const category = searchParams.get("category") ?? undefined;
     const page = Number(searchParams.get("page")) || 1;
     const limit = Number(searchParams.get("limit")) || 10;
 
@@ -120,6 +149,8 @@ export const GET = async (request: Request): Promise<Response> => {
       date,
       startDate,
       endDate,
+      transactionType,
+      category,
       page,
       limit,
     );

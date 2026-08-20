@@ -57,6 +57,9 @@ export const translations = {
     customDate: "Tanggal Kustom",
     transactions: "Transaksi",
     all: "Semua",
+    noTransaction: "Tidak Ada catatan transaksi",
+    noTransactionDescription:
+      "Catat setiap pengeluaran dan pemasukan untuk melihat laporan keuangan yang rapi dan terukur.",
   },
   en: {
     welcome: "Welcome",
@@ -116,6 +119,9 @@ export const translations = {
     customDate: "Custom Date",
     transactions: "Transactions",
     all: "All",
+    noTransaction: "No Transaction Data",
+    noTransactionDescription:
+      "Record every expense and income to see a neat and measurable financial report.",
   },
 } as const;
 
