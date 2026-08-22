@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Pressable, RefreshControl, ScrollView, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import useSWR, { type KeyedMutator } from "swr";
+import useSWR from "swr";
 
+import ButtonGroup from "@/components/ui/buttonGroup";
 import DonatChart from "@/components/ui/donutChart";
 import ErrorStateComponent from "@/components/ui/errorState";
 import FinancialCard from "@/components/ui/financialCard";
@@ -16,61 +17,19 @@ import { useRefetchWhenFocus } from "@/hooks";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
 import type {
+  ChartProps,
+  ErrorStateProps,
   KeyLanguage,
-  MonthSummaryData,
   MonthSummaryResponse,
-  Setter,
-  TransactionsPaginatedData,
+  TransactionErrorStateProps,
+  TransactionSectionProps,
   TransactionsPaginatedResponse,
+  UseMonthSummaryReturn,
+  UseTransactionsReturn,
 } from "@/types";
-import { swrFetcher } from "@/utils";
+import { ButtonGroupList, swrFetcher } from "@/utils";
 import NoTransactionDataIcon from "assets/noTransactionDataIcon";
 import { AlertCircle, PlusIcon, RefreshCw } from "lucide-react-native";
-
-interface ButtonChartGroupProps {
-  cashFlowActive: "income" | "expense";
-  setCashFlowActive: Setter<"income" | "expense">;
-  t: KeyLanguage;
-}
-
-interface ErrorStateProps {
-  onRetry: () => void;
-}
-
-interface TransactionErrorStateProps {
-  onRetry: () => void;
-  message?: string;
-}
-
-interface ChartProps {
-  t: KeyLanguage;
-  cashFlowActive: "income" | "expense";
-  setCashFlowActive: Setter<"income" | "expense">;
-  data: MonthSummaryData;
-}
-
-interface TransactionSectionProps {
-  transactionList: TransactionsPaginatedData["transactions"];
-  loadingGetTransactions: boolean;
-  error: Error | null;
-  onRetry: () => void;
-}
-
-interface UseMonthSummaryReturn {
-  data: MonthSummaryData | null;
-  isLoading: boolean;
-  error: Error | null;
-  mutate: KeyedMutator<MonthSummaryResponse>;
-  isValidating: boolean;
-}
-
-interface UseTransactionsReturn {
-  data: TransactionsPaginatedData | null;
-  isLoading: boolean;
-  isValidating: boolean;
-  error: Error | null;
-  mutate: KeyedMutator<TransactionsPaginatedResponse>;
-}
 
 const useMonthSummary = (
   userId: string | undefined,
@@ -111,8 +70,8 @@ const useTransactions = (
 
   const { data, error, isLoading, isValidating, mutate } =
     useSWR<TransactionsPaginatedResponse>(
-      ["get-transactions", userId, targetDate, page, limit], // listener
-      swrFetcher(url, token), //call api
+      ["get-transactions", userId, targetDate, page, limit],
+      swrFetcher(url, token),
     );
 
   return {
@@ -123,43 +82,6 @@ const useTransactions = (
     mutate,
   };
 };
-
-const ButtonChartGroup = ({
-  cashFlowActive,
-  setCashFlowActive,
-  t,
-}: ButtonChartGroupProps): React.JSX.Element => (
-  <View className="flex-row bg-[#EEF3FA] p-1.5 rounded-xl">
-    <Pressable
-      className={`flex-1 py-2.5 items-center justify-center rounded-lg ${
-        cashFlowActive === "expense" ? "bg-[#1C2A44]" : "bg-transparent"
-      }`}
-      onPress={() => setCashFlowActive("expense")}
-    >
-      <Text
-        className={`font-semibold ${
-          cashFlowActive === "expense" ? "text-[#8EA2C6]" : "text-[#1E293B]"
-        }`}
-      >
-        {t("outgoing")}
-      </Text>
-    </Pressable>
-    <Pressable
-      className={`flex-1 py-2.5 items-center justify-center rounded-lg ${
-        cashFlowActive === "income" ? "bg-[#1C2A44]" : "bg-transparent"
-      }`}
-      onPress={() => setCashFlowActive("income")}
-    >
-      <Text
-        className={`font-semibold ${
-          cashFlowActive === "income" ? "text-[#8EA2C6]" : "text-[#1E293B]"
-        }`}
-      >
-        {t("incoming")}
-      </Text>
-    </Pressable>
-  </View>
-);
 
 const NoTransactionData = ({ t }: { t: KeyLanguage }): React.JSX.Element => {
   return (
@@ -192,10 +114,9 @@ const ChartSection = ({
       <Text className="text-xl font-bold">{t("cashflow")}</Text>
       <Text>{t("detailCashflow")}</Text>
     </View>
-    <ButtonChartGroup
-      t={t}
-      cashFlowActive={cashFlowActive}
-      setCashFlowActive={setCashFlowActive}
+    <ButtonGroup
+      buttonArray={ButtonGroupList(t, setCashFlowActive)}
+      activeValue={cashFlowActive}
     />
     <View>
       <DonatChart

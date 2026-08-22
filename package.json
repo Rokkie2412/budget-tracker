@@ -20,6 +20,7 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "17.4.2",
     "expo": "~57.0.14",
+    "expo-blur": "^57.0.2",
     "expo-constants": "~57.0.11",
     "expo-device": "~57.0.1",
     "expo-font": "~57.0.1",

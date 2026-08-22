@@ -85,3 +85,16 @@ export const CATEGORY_COLORS: Record<string, string> = {
 export const getCategoryColor = (category: string): string => {
   return CATEGORY_COLORS[category] || "#64748B";
 };
+
+export const FILTER_TYPE = {
+  ALL: "all",
+  INCOME: "income",
+  EXPENSE: "expense",
+} as const;
+
+export const FILTER_DATE_LIST_TYPE = {
+  THIS_MONTH: "thisMonth",
+  LAST7_DAYS: "last7Days",
+  LAST30_DAYS: "last30Days",
+  CUSTOM_DATE: "customDate",
+} as const;

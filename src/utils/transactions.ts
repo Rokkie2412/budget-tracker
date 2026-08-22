@@ -1,4 +1,7 @@
-import { FilterDateList } from "@/types/transactions";
+import { ButtonArray } from "@/components/ui/buttonGroup";
+import { FILTER_DATE_LIST_TYPE, FILTER_TYPE } from "@/constants";
+import { KeyLanguage, Setter } from "@/types";
+import { FilterDateList, FilterTransactionType } from "@/types/transactions";
 
 export const ThisMonthStart = (): Date => {
   const now = new Date();
@@ -64,6 +67,8 @@ export const Last30DaysEnd = (): Date => {
 
 export const getDateRangeByFilter = (
   filter: FilterDateList,
+  startCustomDate?: Date | string,
+  endCustomDate?: Date | string,
 ): { startDate: Date; endDate: Date } | undefined => {
   switch (filter) {
     case "thisMonth":
@@ -82,7 +87,63 @@ export const getDateRangeByFilter = (
         endDate: Last30DaysEnd(),
       };
     case "customDate":
+      return {
+        startDate: new Date(startCustomDate!),
+        endDate: new Date(endCustomDate!),
+      };
     default:
       return undefined;
   }
 };
+
+export const getListButtonDateRange = (
+  t: KeyLanguage,
+  onPress: Function,
+  setShowCustomDateModal: Setter<boolean>,
+) => [
+  {
+    label: t("thisMonth"),
+    value: FILTER_DATE_LIST_TYPE.THIS_MONTH,
+    key: "1",
+    onPress: () => onPress(FILTER_DATE_LIST_TYPE.THIS_MONTH),
+  },
+  {
+    label: t("last7Days"),
+    value: FILTER_DATE_LIST_TYPE.LAST7_DAYS,
+    key: "2",
+    onPress: () => onPress(FILTER_DATE_LIST_TYPE.LAST7_DAYS),
+  },
+  {
+    label: t("last30Days"),
+    value: FILTER_DATE_LIST_TYPE.LAST30_DAYS,
+    key: "3",
+    onPress: () => onPress(FILTER_DATE_LIST_TYPE.LAST30_DAYS),
+  },
+  {
+    label: t("customDate"),
+    value: FILTER_DATE_LIST_TYPE.CUSTOM_DATE,
+    key: "4",
+    onPress: () => setShowCustomDateModal(true),
+  },
+];
+
+export const listButtonTransactionsType = (
+  t: KeyLanguage,
+  setActiveValue: Setter<FilterTransactionType>,
+): ButtonArray[] => [
+  {
+    buttonLabel: t("all"),
+    value: FILTER_TYPE.ALL,
+    onPress: () => setActiveValue(FILTER_TYPE.ALL),
+  },
+  {
+    buttonLabel: t("incoming"),
+    value: FILTER_TYPE.INCOME,
+    onPress: () => setActiveValue(FILTER_TYPE.INCOME),
+  },
+  {
+    buttonLabel: t("outgoing"),
+    value: FILTER_TYPE.EXPENSE,
+    onPress: () => setActiveValue(FILTER_TYPE.EXPENSE),
+  },
+];

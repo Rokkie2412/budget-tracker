@@ -12,3 +12,5 @@ export const swrFetcher = (url: string, token: string | null) => async () => {
 
   return res.json();
 };
+
+export * from "./dashboard";

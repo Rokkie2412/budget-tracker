@@ -107,3 +107,5 @@ export type MonthlyTransactionDetailResponse = {
   message: string;
   data: MonthlyTransactionDetailData;
 };
+
+export * from "./dashboard";

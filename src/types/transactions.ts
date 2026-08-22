@@ -1,14 +1,16 @@
 import {
   BUDGET_CATEGORIES_EXPENSE,
   BUDGET_CATEGORIES_INCOME,
+  FILTER_DATE_LIST_TYPE,
+  FILTER_TYPE,
 } from "@/constants";
 import { KeyLanguage, Setter, TransactionsPaginatedResponse } from "@/types";
 
 export type FilterDateList =
-  | "thisMonth"
-  | "last7Days"
-  | "last30Days"
-  | "customDate";
+  (typeof FILTER_DATE_LIST_TYPE)[keyof typeof FILTER_DATE_LIST_TYPE];
+
+export type FilterTransactionType =
+  (typeof FILTER_TYPE)[keyof typeof FILTER_TYPE];
 
 export type useTranasctionType = {
   data: TransactionsPaginatedResponse["data"] | null;
@@ -23,14 +25,15 @@ export type useTranasctionType = {
 
 export type TypeFilterProps = {
   t: KeyLanguage;
-  activeValue: string;
-  setActiveValue: Setter<"all" | "income" | "expense">;
+  activeValue: FilterTransactionType;
+  setActiveValue: Setter<FilterTransactionType>;
 };
 
 export type DateFilterType = {
   t: KeyLanguage;
   activeValue: string;
-  setActiveIndex: Setter<FilterDateList>;
+  setActiveValue: Setter<FilterDateList>;
+  setShowCustomDateModal: Setter<boolean>;
 };
 
 export type FilterCategoryIncomeType = {
@@ -45,15 +48,16 @@ export type FilterCategoryExpenseType = {
   setActiveValue: Setter<(typeof BUDGET_CATEGORIES_EXPENSE)[number] | null>;
 };
 
+export type FilterCatrories =
+  | (typeof BUDGET_CATEGORIES_INCOME)[number]
+  | (typeof BUDGET_CATEGORIES_EXPENSE)[number]
+  | null;
+
 export type FilterCategoryType = {
   t: KeyLanguage;
   activeValue: string;
-  setActiveValue: Setter<
-    | (typeof BUDGET_CATEGORIES_INCOME)[number]
-    | (typeof BUDGET_CATEGORIES_EXPENSE)[number]
-    | null
-  >;
-  type: "all" | "income" | "expense";
+  setActiveValue: Setter<FilterCatrories>;
+  type: FilterTransactionType;
 };
 
 export type UseTransactionParams = {

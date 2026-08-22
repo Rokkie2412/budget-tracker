@@ -60,6 +60,9 @@ export const translations = {
     noTransaction: "Tidak Ada catatan transaksi",
     noTransactionDescription:
       "Catat setiap pengeluaran dan pemasukan untuk melihat laporan keuangan yang rapi dan terukur.",
+    customDateFilterTitle: "Pilih Rentang Tanggal",
+    startCustomDateFilter: "Mulai Dari",
+    endCustomDateFilter: "Sampai",
   },
   en: {
     welcome: "Welcome",
@@ -122,6 +125,9 @@ export const translations = {
     noTransaction: "No Transaction Data",
     noTransactionDescription:
       "Record every expense and income to see a neat and measurable financial report.",
+    customDateFilterTitle: "Select Date Range",
+    startCustomDateFilter: "Start From",
+    endCustomDateFilter: "End",
   },
 } as const;
 

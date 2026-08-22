@@ -1,3 +1,5 @@
+import ButtonGroup from "@/components/ui/buttonGroup";
+import CustomDateModal from "@/components/ui/customDateModal";
 import EmptyComponent from "@/components/ui/emptyState";
 import ErrorComponent from "@/components/ui/errorState";
 import LoadingSpinner from "@/components/ui/loadingSpinner";
@@ -21,13 +23,19 @@ import {
   FilterCategoryExpenseType,
   FilterCategoryIncomeType,
   FilterCategoryType,
+  FilterCatrories,
   FilterDateList,
+  FilterTransactionType,
   TypeFilterProps,
   UseTransactionParams,
   useTranasctionType,
 } from "@/types/transactions";
 import { swrFetcher } from "@/utils";
-import { getDateRangeByFilter } from "@/utils/transactions";
+import {
+  getDateRangeByFilter,
+  getListButtonDateRange,
+  listButtonTransactionsType,
+} from "@/utils/transactions";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -88,38 +96,15 @@ const LoadingSpinnerState = () => (
 const DateFilter = ({
   t,
   activeValue,
-  setActiveIndex,
+  setActiveValue,
+  setShowCustomDateModal,
 }: DateFilterType): React.ReactElement => {
-  const onPress = (value: FilterDateList) => {
-    setActiveIndex(value);
-  };
+  const listButton = getListButtonDateRange(
+    t,
+    setActiveValue,
+    setShowCustomDateModal,
+  );
 
-  const listButton = [
-    {
-      label: t("thisMonth"),
-      value: "thisMonth",
-      key: "1",
-      onPress: (): void => onPress("thisMonth"),
-    },
-    {
-      label: t("last7Days"),
-      value: "last7Days",
-      key: "2",
-      onPress: () => onPress("last7Days"),
-    },
-    {
-      label: t("last30Days"),
-      value: "last30Days",
-      key: "3",
-      onPress: () => onPress("last30Days"),
-    },
-    {
-      label: t("customDate"),
-      value: "customDate",
-      key: "4",
-      onPress: () => onPress("customDate"),
-    },
-  ];
   return (
     <View className="flex flex-col w-full">
       <ScrollView
@@ -150,47 +135,8 @@ const TypeFilter = ({
   activeValue,
   setActiveValue,
 }: TypeFilterProps): React.ReactElement => {
-  const listButton = [
-    {
-      label: t("all"),
-      value: "all",
-      key: "0",
-      onPress: () => setActiveValue("all"),
-    },
-    {
-      label: t("incoming"),
-      value: "income",
-      key: "1",
-      onPress: () => setActiveValue("income"),
-    },
-    {
-      label: t("outgoing"),
-      value: "expense",
-      key: "2",
-      onPress: () => setActiveValue("expense"),
-    },
-  ];
-  return (
-    <View className="flex-row bg-[#EEF3FA] p-1.5 rounded-xl">
-      {listButton.map((item) => (
-        <Pressable
-          key={item.key}
-          onPress={item.onPress}
-          className={`flex-1 py-2.5 items-center justify-center rounded-lg ${
-            activeValue === item.value ? "bg-[#1C2A44]" : "bg-transparent"
-          }`}
-        >
-          <Text
-            className={`text-center font-semibold ${
-              activeValue === item.value ? "text-[#EAF1FF]" : "text-[#1E293B]"
-            }`}
-          >
-            {item.label}
-          </Text>
-        </Pressable>
-      ))}
-    </View>
-  );
+  const listButton = listButtonTransactionsType(t, setActiveValue);
+  return <ButtonGroup buttonArray={listButton} activeValue={activeValue} />;
 };
 
 const FilterCategoryIncome = ({
@@ -316,7 +262,7 @@ const FilterCategory = ({
 };
 
 const useClearCategoryEffect = (
-  filterType: "all" | "income" | "expense",
+  filterType: FilterTransactionType,
   filterCategory: string,
   setFilterCategory: Setter<
     | (typeof BUDGET_CATEGORIES_INCOME)[number]
@@ -414,14 +360,9 @@ const TransactionList = () => {
   const { user, token } = useAuthStore((state) => state);
   const [page, setPage] = useState<number>(1);
   const [filterDate, setFilterDate] = useState<FilterDateList>("thisMonth");
-  const [filterCategory, setFilterCategory] = useState<
-    | (typeof BUDGET_CATEGORIES_INCOME)[number]
-    | (typeof BUDGET_CATEGORIES_EXPENSE)[number]
-    | null
-  >(null);
-  const [filterType, setFilterType] = useState<"all" | "income" | "expense">(
-    "all",
-  );
+  const [showCustomDate, setShowCustomDate] = useState<boolean>(false);
+  const [filterCategory, setFilterCategory] = useState<FilterCatrories>(null);
+  const [filterType, setFilterType] = useState<FilterTransactionType>("all");
 
   const dateRange = getDateRangeByFilter(filterDate);
 
@@ -455,7 +396,8 @@ const TransactionList = () => {
             <DateFilter
               t={t}
               activeValue={filterDate}
-              setActiveIndex={setFilterDate}
+              setActiveValue={setFilterDate}
+              setShowCustomDateModal={setShowCustomDate}
             />
             <TypeFilter
               t={t}
@@ -480,6 +422,7 @@ const TransactionList = () => {
             />
           </View>
         </View>
+        <CustomDateModal open={showCustomDate} setOpen={setShowCustomDate} />
       </SafeAreaView>
     </SafeAreaProvider>
   );
