@@ -86,11 +86,17 @@ export const getDateRangeByFilter = (
         startDate: Last30DaysStart(),
         endDate: Last30DaysEnd(),
       };
-    case "customDate":
+    case "customDate": {
+      if (!startCustomDate || !endCustomDate) return undefined;
+      const start = new Date(startCustomDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(endCustomDate);
+      end.setHours(23, 59, 59, 999);
       return {
-        startDate: new Date(startCustomDate!),
-        endDate: new Date(endCustomDate!),
+        startDate: start,
+        endDate: end,
       };
+    }
     default:
       return undefined;
   }
@@ -98,7 +104,7 @@ export const getDateRangeByFilter = (
 
 export const getListButtonDateRange = (
   t: KeyLanguage,
-  onPress: Function,
+  onPress: (filter: FilterDateList) => void,
   setShowCustomDateModal: Setter<boolean>,
 ) => [
   {

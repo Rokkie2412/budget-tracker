@@ -361,17 +361,23 @@ const TransactionList = () => {
   const [page, setPage] = useState<number>(1);
   const [filterDate, setFilterDate] = useState<FilterDateList>("thisMonth");
   const [showCustomDate, setShowCustomDate] = useState<boolean>(false);
+  const [customStartDate, setCustomStartDate] = useState<string | null>(null);
+  const [customEndDate, setCustomEndDate] = useState<string | null>(null);
   const [filterCategory, setFilterCategory] = useState<FilterCatrories>(null);
   const [filterType, setFilterType] = useState<FilterTransactionType>("all");
 
-  const dateRange = getDateRangeByFilter(filterDate);
+  const dateRange = getDateRangeByFilter(
+    filterDate,
+    customStartDate ?? undefined,
+    customEndDate ?? undefined,
+  );
 
   const { data, isLoading, error, mutate } = useTransaction({
     userId: user?.userId,
     page,
     token,
-    startDate: dateRange?.startDate.toISOString(),
-    endDate: dateRange?.endDate.toISOString(),
+    startDate: dateRange?.startDate?.toISOString(),
+    endDate: dateRange?.endDate?.toISOString(),
     transactionType: filterType,
     category: filterCategory,
   });
@@ -422,7 +428,18 @@ const TransactionList = () => {
             />
           </View>
         </View>
-        <CustomDateModal open={showCustomDate} setOpen={setShowCustomDate} />
+        <CustomDateModal
+          open={showCustomDate}
+          setOpen={setShowCustomDate}
+          initialStartDate={customStartDate}
+          initialEndDate={customEndDate}
+          onApply={(start: string, end: string): void => {
+            setCustomStartDate(start);
+            setCustomEndDate(end);
+            setFilterDate("customDate");
+            setPage(1);
+          }}
+        />
       </SafeAreaView>
     </SafeAreaProvider>
   );

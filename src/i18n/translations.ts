@@ -53,7 +53,7 @@ export const translations = {
     refresh: "Muat Ulang",
     thisMonth: "Bulan Ini",
     last7Days: "7 Hari Terakhir",
-    last30Days: "30 Hari Terakhir",
+    last30Days: "30 Hari Terak",
     customDate: "Tanggal Kustom",
     transactions: "Transaksi",
     all: "Semua",
@@ -63,6 +63,8 @@ export const translations = {
     customDateFilterTitle: "Pilih Rentang Tanggal",
     startCustomDateFilter: "Mulai Dari",
     endCustomDateFilter: "Sampai",
+    apply: "Terapkan",
+    reset: "Reset",
   },
   en: {
     welcome: "Welcome",
@@ -128,6 +130,8 @@ export const translations = {
     customDateFilterTitle: "Select Date Range",
     startCustomDateFilter: "Start From",
     endCustomDateFilter: "End",
+    apply: "Apply",
+    reset: "Reset",
   },
 } as const;
 
