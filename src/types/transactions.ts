@@ -27,6 +27,7 @@ export type TypeFilterProps = {
   t: KeyLanguage;
   activeValue: FilterTransactionType;
   setActiveValue: Setter<FilterTransactionType>;
+  isDisabled?: boolean;
 };
 
 export type DateFilterType = {
@@ -34,6 +35,7 @@ export type DateFilterType = {
   activeValue: string;
   setActiveValue: Setter<FilterDateList>;
   setShowCustomDateModal: Setter<boolean>;
+  isDisabled?: boolean;
 };
 
 export type FilterCategoryIncomeType = {

@@ -108,4 +108,30 @@ export type MonthlyTransactionDetailResponse = {
   data: MonthlyTransactionDetailData;
 };
 
+export interface MonthlyReportItem {
+  date: string;
+  income: number;
+  expense: number;
+  total: number;
+}
+
+export interface MonthlyReportPaginationMeta {
+  page: number;
+  limit: number;
+  totalMonths: number;
+  totalPages: number;
+}
+
+export type MonthlyReportPaginatedData = {
+  reports: MonthlyReportItem[];
+  pagination: MonthlyReportPaginationMeta;
+};
+
+export type MonthlyReportResponse = {
+  message: string;
+  data: MonthlyReportPaginatedData;
+};
+
 export * from "./dashboard";
+
+

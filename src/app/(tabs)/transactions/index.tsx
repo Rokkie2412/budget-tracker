@@ -98,6 +98,7 @@ const DateFilter = ({
   activeValue,
   setActiveValue,
   setShowCustomDateModal,
+  isDisabled,
 }: DateFilterType): React.ReactElement => {
   const listButton = getListButtonDateRange(
     t,
@@ -114,6 +115,7 @@ const DateFilter = ({
       >
         {listButton.map((item) => (
           <Pressable
+            disabled={isDisabled}
             key={item.key}
             className={`p-3 rounded-full  flex justify-center items-center ${activeValue === item.value ? "bg-[#20304E]" : "bg-[#EEF3FA]"}`}
             onPress={item.onPress}
@@ -134,9 +136,16 @@ const TypeFilter = ({
   t,
   activeValue,
   setActiveValue,
+  isDisabled,
 }: TypeFilterProps): React.ReactElement => {
   const listButton = listButtonTransactionsType(t, setActiveValue);
-  return <ButtonGroup buttonArray={listButton} activeValue={activeValue} />;
+  return (
+    <ButtonGroup
+      isDisabled={isDisabled}
+      buttonArray={listButton}
+      activeValue={activeValue}
+    />
+  );
 };
 
 const FilterCategoryIncome = ({
@@ -400,6 +409,7 @@ const TransactionList = () => {
           </Text>
           <View className="w-full">
             <DateFilter
+              isDisabled={isLoading || error}
               t={t}
               activeValue={filterDate}
               setActiveValue={setFilterDate}
@@ -409,6 +419,7 @@ const TransactionList = () => {
               t={t}
               activeValue={filterType}
               setActiveValue={setFilterType}
+              isDisabled={isLoading || error}
             />
             <FilterCategory
               t={t}

@@ -65,6 +65,8 @@ export const translations = {
     endCustomDateFilter: "Sampai",
     apply: "Terapkan",
     reset: "Reset",
+    reportPageTitle: "Laporan Bulanan",
+    netBalance: "Saldo Bersih",
   },
   en: {
     welcome: "Welcome",
@@ -132,6 +134,8 @@ export const translations = {
     endCustomDateFilter: "End",
     apply: "Apply",
     reset: "Reset",
+    reportPageTitle: "Monthly Reports",
+    netBalance: "Net Balance",
   },
 } as const;
 

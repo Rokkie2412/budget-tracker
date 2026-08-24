@@ -1,4 +1,4 @@
-import connectDataBase from "@/lib/connectDataBase";
+import connectDB from "@/lib/connectDataBase";
 import { hashUserId } from "@/lib/hashUserId";
 import { verifyAuth } from "@/lib/jwtToken";
 import { Transaction } from "@/models";
@@ -225,7 +225,6 @@ const handleMonthSummary = async (
   });
 };
 
-
 export const GET = async (request: Request): Promise<Response> => {
   try {
     const { payload, errorResponse } = await verifyAuth(request);
@@ -234,7 +233,7 @@ export const GET = async (request: Request): Promise<Response> => {
       return errorResponse!;
     }
 
-    await connectDataBase();
+    await connectDB();
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId") ?? "";
     const date = searchParams.get("date") ?? undefined;

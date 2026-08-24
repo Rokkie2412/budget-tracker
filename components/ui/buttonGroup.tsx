@@ -10,17 +10,20 @@ export type ButtonArray = {
 export type ButtonGroupProps = {
   buttonArray: ButtonArray[];
   activeValue: string;
+  isDisabled?: boolean;
 };
 
 const ButtonGroup = ({
   buttonArray,
   activeValue,
+  isDisabled,
 }: ButtonGroupProps): ReactElement => (
   <View className="flex-row w-full bg-[#EEF3FA] p-1.5 rounded-xl">
     {buttonArray.map((item) => {
       const isActive = activeValue === item.value;
       return (
         <Pressable
+          disabled={isDisabled}
           key={item.value}
           onPress={item.onPress}
           className={`flex-1 py-2.5 items-center justify-center rounded-lg ${
