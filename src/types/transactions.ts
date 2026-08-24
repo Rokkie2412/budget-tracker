@@ -4,7 +4,12 @@ import {
   FILTER_DATE_LIST_TYPE,
   FILTER_TYPE,
 } from "@/constants";
-import { KeyLanguage, Setter, TransactionsPaginatedResponse } from "@/types";
+import {
+  KeyLanguage,
+  Setter,
+  TransactionsPaginatedData,
+  TransactionsPaginatedResponse,
+} from "@/types";
 
 export type FilterDateList =
   (typeof FILTER_DATE_LIST_TYPE)[keyof typeof FILTER_DATE_LIST_TYPE];
@@ -21,6 +26,7 @@ export type useTranasctionType = {
   endDate?: Date | string;
   transactionType?: string;
   category?: string;
+  isValidating: boolean;
 };
 
 export type TypeFilterProps = {
@@ -70,4 +76,23 @@ export type UseTransactionParams = {
   endDate?: Date | string;
   transactionType?: string;
   category?: string | null;
+};
+
+export type ContentBodyProps = {
+  data: TransactionsPaginatedData | null;
+  page: number;
+  setPage: Setter<number>;
+  isValidating: boolean;
+  onRefresh: () => void;
+};
+
+export type MainContentProps = {
+  loading: boolean;
+  error: Error | null;
+  data: TransactionsPaginatedData | null;
+  page: number;
+  setPage: Setter<number>;
+  mutate: () => void;
+  isValidating: boolean;
+  onRefresh: () => void;
 };

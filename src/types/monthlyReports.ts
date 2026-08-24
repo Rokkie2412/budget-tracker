@@ -9,7 +9,6 @@ export type UseMonthlyReports = {
 export type {
   MonthlyReportItem,
   MonthlyReportPaginationMeta,
-  MonthlyReportPaginatedData,
-  MonthlyReportResponse,
+  MonthlyReportResponse
 } from "@/types";
 

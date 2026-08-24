@@ -7,7 +7,7 @@ import {
 } from "@/types/monthlyReports";
 import { swrFetcher } from "@/utils";
 import React, { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import useSWR, { KeyedMutator } from "swr";
 
@@ -16,6 +16,7 @@ interface UseMonthlyReportsReturn {
   error: Error | undefined;
   isLoading: boolean;
   mutate: KeyedMutator<MonthlyReportResponse>;
+  isValidating: boolean;
 }
 
 const useMonthlyReports = ({
@@ -33,32 +34,40 @@ const useMonthlyReports = ({
   if (startMonth) params.set("startMonth", startMonth.toString());
   if (endMonth) params.set("endMonth", endMonth.toString());
   const url = `/api/getMonthlyReport?${params.toString()}`;
-  const { data, error, isLoading, mutate } = useSWR<MonthlyReportResponse>(
-    ["get-list-monthly-reports", userId, startMonth, endMonth, page],
-    swrFetcher(url, token),
-  );
+  const { data, error, isLoading, mutate, isValidating } =
+    useSWR<MonthlyReportResponse>(
+      ["get-list-monthly-reports", userId, startMonth, endMonth, page],
+      swrFetcher(url, token),
+    );
 
   return {
     data,
     error,
     isLoading,
     mutate,
+    isValidating,
   };
 };
 
 const ReportIndexPage = (): React.JSX.Element => {
   const [customStartDate, setCustomStartDate] = useState<string | null>(null);
   const [customEndDate, setCustomEndDate] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
   const { t } = useLanguageStore();
   const { user, token } = useAuthStore((state) => state);
 
-  const { mutate, isLoading, data, error } = useMonthlyReports({
+  const { mutate, isLoading, data, error, isValidating } = useMonthlyReports({
     startMonth: customStartDate ?? undefined,
     endMonth: customEndDate ?? undefined,
     userId: user?.userId ?? "",
-    page: 1,
+    page: page,
     token: token ?? "",
   });
+
+  const handleRefresh = () => {
+    setPage(1);
+    mutate();
+  };
 
   console.log("DATA MONTHLY REPORT: ", data);
   return (
@@ -72,6 +81,12 @@ const ReportIndexPage = (): React.JSX.Element => {
             className="flex-1 w-full"
             contentContainerClassName="gap-3 pb-8"
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={isValidating}
+                onRefresh={handleRefresh}
+              />
+            }
           >
             {data?.data?.reports.map((report) => (
               <MonthlyReportCard

@@ -13,12 +13,9 @@ import {
 import { useRefetchWhenFocus } from "@/hooks";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
+import { Setter, TransactionsPaginatedResponse } from "@/types";
 import {
-  Setter,
-  TransactionsPaginatedData,
-  TransactionsPaginatedResponse,
-} from "@/types";
-import {
+  ContentBodyProps,
   DateFilterType,
   FilterCategoryExpenseType,
   FilterCategoryIncomeType,
@@ -26,6 +23,7 @@ import {
   FilterCatrories,
   FilterDateList,
   FilterTransactionType,
+  MainContentProps,
   TypeFilterProps,
   UseTransactionParams,
   useTranasctionType,
@@ -37,7 +35,7 @@ import {
   listButtonTransactionsType,
 } from "@/utils/transactions";
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import useSWR from "swr";
 
@@ -66,7 +64,7 @@ const useTransaction = ({
     params.set("category", category);
   }
   const url = `/api/getTransactions?${params.toString()}`;
-  const { data, error, isLoading, mutate } =
+  const { data, error, isLoading, mutate, isValidating } =
     useSWR<TransactionsPaginatedResponse>(
       [
         "get-list-transaction",
@@ -84,6 +82,7 @@ const useTransaction = ({
     isLoading: isLoading && !data,
     error: error ?? null,
     mutate,
+    isValidating,
   };
 };
 
@@ -291,14 +290,15 @@ const ContentBody = ({
   data,
   page,
   setPage,
-}: {
-  data: TransactionsPaginatedData | null;
-  page: number;
-  setPage: Setter<number>;
-}) => {
+  isValidating,
+  onRefresh,
+}: ContentBodyProps) => {
   return (
     <>
       <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={isValidating} onRefresh={onRefresh} />
+        }
         nestedScrollEnabled
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-8"
@@ -341,14 +341,9 @@ const MainContent = ({
   page,
   setPage,
   mutate,
-}: {
-  loading: boolean;
-  error: Error | null;
-  data: TransactionsPaginatedData | null;
-  page: number;
-  setPage: Setter<number>;
-  mutate: () => void;
-}): React.ReactElement => {
+  isValidating,
+  onRefresh,
+}: MainContentProps): React.ReactElement => {
   if (loading) {
     return <LoadingSpinnerState />;
   }
@@ -361,7 +356,15 @@ const MainContent = ({
     return <EmptyComponent />;
   }
 
-  return <ContentBody data={data} page={page} setPage={setPage} />;
+  return (
+    <ContentBody
+      data={data}
+      page={page}
+      setPage={setPage}
+      isValidating={isValidating}
+      onRefresh={onRefresh}
+    />
+  );
 };
 
 const TransactionList = () => {
@@ -381,7 +384,7 @@ const TransactionList = () => {
     customEndDate ?? undefined,
   );
 
-  const { data, isLoading, error, mutate } = useTransaction({
+  const { data, isLoading, error, mutate, isValidating } = useTransaction({
     userId: user?.userId,
     page,
     token,
@@ -399,7 +402,11 @@ const TransactionList = () => {
 
   useRefetchWhenFocus(mutate);
 
-  console.log("list transaction", data);
+  const handleRefresh = () => {
+    setPage(1);
+    mutate();
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView>
@@ -430,6 +437,8 @@ const TransactionList = () => {
           </View>
           <View className="flex flex-3/4 w-full mt-4 bg-[#FFFFFF] rounded-xl p-4 mb-4 shadow-sm">
             <MainContent
+              isValidating={isValidating}
+              onRefresh={handleRefresh}
               loading={isLoading}
               error={error}
               data={data}
