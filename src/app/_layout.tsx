@@ -27,7 +27,7 @@ export default function RootLayout(): React.JSX.Element {
     if (!token && !inAuthGroup) {
       router.replace("/login");
     } else if (token && inAuthGroup) {
-      router.replace("/(tabs)");
+      router.replace("/(tabs)/dashboard");
     }
   }, [token, isLoading, segments]);
 

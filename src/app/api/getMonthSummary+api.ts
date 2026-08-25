@@ -1,12 +1,13 @@
-import connectDataBase from "@/lib/connectDataBase";
+import connectDB from "@/lib/connectDataBase";
 import { hashUserId } from "@/lib/hashUserId";
 import { verifyAuth } from "@/lib/jwtToken";
 import { Transaction } from "@/models";
-
-interface RequestBody {
-  userId: string;
-  date?: string | Date;
-}
+import type {
+  CategoryBreakdown,
+  CategoryBreakdownItem,
+  ExpenseCategory,
+  IncomeCategory,
+} from "@/types";
 
 interface MonthlyAggregationResult {
   _id: "IN" | "OUT";
@@ -59,7 +60,86 @@ const getSummaryForRange = async (
   };
 };
 
-const handleMonthlyDetail = async (
+interface CategoryAggregationRaw {
+  _id: {
+    type: "IN" | "OUT";
+    category: string;
+  };
+  total: number;
+  count: number;
+}
+
+const getCategoryBreakdown = async (
+  userId: string,
+  startDate: Date,
+  endDate: Date,
+  incomingTotal: number,
+  outgoingTotal: number,
+): Promise<CategoryBreakdown> => {
+  const results: CategoryAggregationRaw[] = await Transaction.aggregate([
+    {
+      $match: {
+        userId,
+        date: { $gte: startDate, $lte: endDate },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          type: "$type",
+          category: { $ifNull: ["$category", "Other"] },
+        },
+        total: { $sum: "$amount" },
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { total: -1 },
+    },
+  ]);
+
+  const expenses: CategoryBreakdownItem<ExpenseCategory>[] = [];
+  const income: CategoryBreakdownItem<IncomeCategory>[] = [];
+
+  for (const item of results) {
+    const rawCategory = item._id.category || "Other";
+    const total = item.total;
+    const count = item.count;
+
+    if (item._id.type === "OUT") {
+      const percentage =
+        outgoingTotal > 0
+          ? parseFloat(((total / outgoingTotal) * 100).toFixed(1))
+          : 0;
+      expenses.push({
+        category: rawCategory as ExpenseCategory,
+        total,
+        percentage,
+        percentageFormatted: `${percentage}%`,
+        count,
+      });
+    } else if (item._id.type === "IN") {
+      const percentage =
+        incomingTotal > 0
+          ? parseFloat(((total / incomingTotal) * 100).toFixed(1))
+          : 0;
+      income.push({
+        category: rawCategory as IncomeCategory,
+        total,
+        percentage,
+        percentageFormatted: `${percentage}%`,
+        count,
+      });
+    }
+  }
+
+  return {
+    expenses,
+    income,
+  };
+};
+
+const handleMonthSummary = async (
   userId: string,
   dateInput?: string | Date,
 ): Promise<Response> => {
@@ -86,7 +166,7 @@ const handleMonthlyDetail = async (
   const year = targetDate.getFullYear();
   const month = targetDate.getMonth(); // 0-indexed
 
-  // Current selected month range (1st day 00:00:00 to last day 23:59:59.999)
+  // Current selected month range
   const startCurrentMonth = new Date(year, month, 1, 0, 0, 0, 0);
   const endCurrentMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
 
@@ -94,19 +174,22 @@ const handleMonthlyDetail = async (
   const startPreviousMonth = new Date(year, month - 1, 1, 0, 0, 0, 0);
   const endPreviousMonth = new Date(year, month, 0, 23, 59, 59, 999);
 
-  // Parallel fetch for current and previous month summaries + current month transactions list
-  const [currentMonth, lastMonth, transactions] = await Promise.all([
+  // Parallel fetch for current and previous month summaries
+  const [currentMonth, lastMonth] = await Promise.all([
     getSummaryForRange(hashedUserId, startCurrentMonth, endCurrentMonth),
     getSummaryForRange(hashedUserId, startPreviousMonth, endPreviousMonth),
-    Transaction.find({
-      userId: hashedUserId,
-      date: { $gte: startCurrentMonth, $lte: endCurrentMonth },
-    })
-      .sort({ date: -1 })
-      .lean(),
   ]);
 
-  // Calculate percentage difference comparing to last month if available
+  // Category breakdown for current month
+  const categories = await getCategoryBreakdown(
+    hashedUserId,
+    startCurrentMonth,
+    endCurrentMonth,
+    currentMonth.incoming,
+    currentMonth.outgoing,
+  );
+
+  // Calculate percentage difference comparing to last month
   let percentageChange: string | null = null;
   let status: "plus" | "minus" | null = null;
 
@@ -121,14 +204,14 @@ const handleMonthlyDetail = async (
   }
 
   return Response.json({
-    message: "Success retrieving monthly transaction detail.",
+    message: "Success retrieving monthly summary.",
     data: {
       year,
       month: month + 1,
       total: currentMonth.total,
       income: currentMonth.incoming,
       outcome: currentMonth.outgoing,
-      transactions,
+      categories,
       lastMonth: {
         total: lastMonth.total,
         income: lastMonth.incoming,
@@ -142,21 +225,6 @@ const handleMonthlyDetail = async (
   });
 };
 
-export const POST = async (request: Request): Promise<Response> => {
-  try {
-    await connectDataBase();
-    const body: RequestBody = await request.json();
-    return await handleMonthlyDetail(body.userId, body.date);
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal Server Error";
-    return Response.json(
-      { message: "An error occurred on the server.", error: errorMessage },
-      { status: 500 },
-    );
-  }
-};
-
 export const GET = async (request: Request): Promise<Response> => {
   try {
     const { payload, errorResponse } = await verifyAuth(request);
@@ -165,7 +233,7 @@ export const GET = async (request: Request): Promise<Response> => {
       return errorResponse!;
     }
 
-    await connectDataBase();
+    await connectDB();
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId") ?? "";
     const date = searchParams.get("date") ?? undefined;
@@ -177,7 +245,7 @@ export const GET = async (request: Request): Promise<Response> => {
       );
     }
 
-    return await handleMonthlyDetail(userId, date);
+    return await handleMonthSummary(userId, date);
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Internal Server Error";

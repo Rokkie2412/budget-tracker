@@ -1,3 +1,7 @@
+import {
+  BUDGET_CATEGORIES_EXPENSE,
+  BUDGET_CATEGORIES_INCOME,
+} from "@/constants";
 import type { TranslationKeys } from "@/i18n/translations";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -6,24 +10,12 @@ export interface IUserConnected {
   password: string;
 }
 
-export type BudgetCategory =
-  | "Bills"
-  | "Education"
-  | "Family Needs"
-  | "Food & Drinks"
-  | "Gift and Chartiy"
-  | "Groceries"
-  | "Health & personal care"
-  | "Hobby & Entertaiment"
-  | "Loans"
-  | "Saving & Investment"
-  | "Shopping"
-  | "sports"
-  | "Transportaion"
-  | "Traveling"
-  | "Other";
+export type ExpenseCategory = (typeof BUDGET_CATEGORIES_EXPENSE)[number];
+export type IncomeCategory = (typeof BUDGET_CATEGORIES_INCOME)[number];
+export type BudgetCategory = ExpenseCategory | IncomeCategory;
 
 export interface ITransaction {
+  _id?: string;
   userId: string;
   amount: number;
   description: string;
@@ -58,10 +50,55 @@ export type MonthComparison = {
   status: "plus" | "minus" | null;
 };
 
+export interface CategoryBreakdownItem<TCategory extends string> {
+  category: TCategory;
+  total: number;
+  percentage: number;
+  percentageFormatted: string;
+  count: number;
+}
+
+export interface CategoryBreakdown {
+  expenses: CategoryBreakdownItem<ExpenseCategory>[];
+  income: CategoryBreakdownItem<IncomeCategory>[];
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalTransactions: number;
+  totalPages: number;
+}
+
+export type MonthSummaryData = MonthSummary & {
+  year: number;
+  month: number;
+  categories: CategoryBreakdown;
+  lastMonth: MonthSummary;
+  comparison: MonthComparison;
+};
+
+export type MonthSummaryResponse = {
+  message: string;
+  data: MonthSummaryData;
+};
+
+export type TransactionsPaginatedData = {
+  transactions: ITransaction[];
+  pagination: PaginationMeta;
+};
+
+export type TransactionsPaginatedResponse = {
+  message: string;
+  data: TransactionsPaginatedData;
+};
+
 export type MonthlyTransactionDetailData = MonthSummary & {
   year: number;
   month: number;
   transactions: ITransaction[];
+  pagination: PaginationMeta;
+  categories: CategoryBreakdown;
   lastMonth: MonthSummary;
   comparison: MonthComparison;
 };
@@ -70,3 +107,30 @@ export type MonthlyTransactionDetailResponse = {
   message: string;
   data: MonthlyTransactionDetailData;
 };
+
+export interface MonthlyReportItem {
+  date: string;
+  income: number;
+  expense: number;
+  total: number;
+}
+
+export interface MonthlyReportPaginationMeta {
+  page: number;
+  limit: number;
+  totalMonths: number;
+  totalPages: number;
+}
+
+export type MonthlyReportPaginatedData = {
+  reports: MonthlyReportItem[];
+  pagination: MonthlyReportPaginationMeta;
+};
+
+export type MonthlyReportResponse = {
+  message: string;
+  data: MonthlyReportPaginatedData;
+};
+
+export * from "./dashboard";
+

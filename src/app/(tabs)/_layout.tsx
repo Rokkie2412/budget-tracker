@@ -19,13 +19,22 @@ export default function TabLayout(): React.JSX.Element {
         tabBarActiveTintColor: "#2563eb",
         tabBarInactiveTintColor: "#64748b",
         tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: "#e2e8f0",
+          backgroundColor: "#ffffff",
+          borderTopWidth: 0,
+          height: 64,
+          paddingBottom: 8,
+          paddingTop: 8,
+          shadowColor: "#000000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 4,
+          elevation: 8,
         },
+        animation: "shift",
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="dashboard"
         options={{
           title: t("dashboardBottomMenu"),
           tabBarIcon: ({ color, size }): React.JSX.Element => (
@@ -34,7 +43,7 @@ export default function TabLayout(): React.JSX.Element {
         }}
       />
       <Tabs.Screen
-        name="transaction"
+        name="transactions"
         options={{
           title: t("transactionBottomMenu"),
           tabBarIcon: ({ color, size }): React.JSX.Element => (
