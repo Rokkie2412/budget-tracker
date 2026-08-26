@@ -67,6 +67,7 @@ export const translations = {
     reset: "Reset",
     reportPageTitle: "Laporan Bulanan",
     netBalance: "Saldo Bersih",
+    addTransactionTitle: "Tambah Transansaksi"
   },
   en: {
     welcome: "Welcome",
@@ -136,6 +137,7 @@ export const translations = {
     reset: "Reset",
     reportPageTitle: "Monthly Reports",
     netBalance: "Net Balance",
+    addTransactionTitle: "Add Transaction"
   },
 } as const;
 

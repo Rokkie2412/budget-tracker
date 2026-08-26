@@ -11,6 +11,10 @@ import {
   type UseMonthlyReports,
 } from "@/types/monthlyReports";
 import { swrFetcher } from "@/utils";
+import EmptyState from "@/components/ui/emptyState";
+import { Spinner } from "@/components/ui/spinner";
+import ErrorState from "@/components/ui/errorState";
+import LoadingSpinner from "@/components/ui/loadingSpinner";
 
 interface UseMonthlyReportsReturn {
   data: MonthlyReportResponse | undefined;
@@ -69,6 +73,30 @@ const ReportIndexPage = (): React.JSX.Element => {
     setPage(1);
     mutate();
   };
+
+  if (isLoading) {
+    return (
+      <View className="flex flex-1 w-full h-full items-center justify-center">
+        <LoadingSpinner />
+      </View>
+    )
+  }
+
+  if (error) {
+    return (
+      <View className="w-full h-full flex flex-1 items-center justify-center">
+        <ErrorState />
+      </View>
+    )
+  }
+
+  if (data?.data.reports.length === 0) {
+    return (
+      <View className="w-full h-full flex flex-1 items-center justify-center">
+        <EmptyState />
+      </View>
+    )
+  }
 
   console.log("DATA MONTHLY REPORT: ", data);
   return (
