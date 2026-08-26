@@ -82,7 +82,7 @@ const LoginPage = (): React.JSX.Element => {
         }
 
         await loginStore(data.user, data.token);
-        router.replace("/");
+        router.replace("/(tabs)/dashboard");
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : t("loginFailed");

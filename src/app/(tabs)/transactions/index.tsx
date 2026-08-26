@@ -1,3 +1,9 @@
+import { useEffect, useState } from "react";
+import { Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import useSWR from "swr";
+
 import ButtonGroup from "@/components/ui/buttonGroup";
 import CustomDateModal from "@/components/ui/customDateModal";
 import EmptyComponent from "@/components/ui/emptyState";
@@ -25,8 +31,8 @@ import {
   FilterTransactionType,
   MainContentProps,
   TypeFilterProps,
-  UseTransactionParams,
   useTranasctionType,
+  UseTransactionParams,
 } from "@/types/transactions";
 import { swrFetcher } from "@/utils";
 import {
@@ -34,10 +40,6 @@ import {
   getListButtonDateRange,
   listButtonTransactionsType,
 } from "@/utils/transactions";
-import { useEffect, useState } from "react";
-import { Pressable, RefreshControl, ScrollView, View } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import useSWR from "swr";
 
 const useTransaction = ({
   userId,
@@ -408,9 +410,11 @@ const TransactionList = () => {
   };
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView>
-        <View className="flex flex-col h-full w-full px-6 bg-[#FFFFFF]">
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <StatusBar style="dark" animated />
+
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+        <View className="flex flex-col flex-1 w-full px-6 bg-[#FFFFFF]">
           <Text className="text-4xl font-bold text-[#20304E] text-center py-6">
             {t("transactions")}
           </Text>
