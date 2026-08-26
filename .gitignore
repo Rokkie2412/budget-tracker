@@ -47,6 +47,4 @@ example
 .env.*
 
 # vscode
-.vscode
-.vscode.*
-.vscode/*
+.vscode/
