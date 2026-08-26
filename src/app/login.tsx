@@ -1,5 +1,3 @@
-import { useFormik } from "formik";
-import { Eye, EyeOff, Globe, Lock, LogIn } from "lucide-react-native";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -8,6 +6,9 @@ import {
   ScrollView,
   View,
 } from "react-native";
+import { router } from "expo-router";
+import { useFormik } from "formik";
+import { Eye, EyeOff, Globe, Lock, LogIn } from "lucide-react-native";
 import * as Yup from "yup";
 
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
@@ -16,7 +17,6 @@ import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
 import { KeyLanguage } from "@/types";
-import { router } from "expo-router";
 
 interface FormikInitialID {
   userId: string;

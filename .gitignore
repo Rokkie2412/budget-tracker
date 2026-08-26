@@ -45,3 +45,8 @@ example
 # secrets
 .env
 .env.*
+
+# vscode
+.vscode
+.vscode.*
+.vscode/*

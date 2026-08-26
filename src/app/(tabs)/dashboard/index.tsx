@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Pressable, RefreshControl, ScrollView, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { Link } from "expo-router";
+import NoTransactionDataIcon from "assets/noTransactionDataIcon";
+import { AlertCircle, PlusIcon, RefreshCw } from "lucide-react-native";
 import useSWR from "swr";
 
 import ButtonGroup from "@/components/ui/buttonGroup";
@@ -28,8 +31,6 @@ import type {
   UseTransactionsReturn,
 } from "@/types";
 import { ButtonGroupList, swrFetcher } from "@/utils";
-import NoTransactionDataIcon from "assets/noTransactionDataIcon";
-import { AlertCircle, PlusIcon, RefreshCw } from "lucide-react-native";
 
 const useMonthSummary = (
   userId: string | undefined,
@@ -325,9 +326,9 @@ export default function HomeScreen(): React.JSX.Element {
                 <Text className="text-xl font-bold">
                   {t("historyThisMonthTitle")}
                 </Text>
-                <Pressable>
+                <Link href="/(tabs)/transactions">
                   <Text>{t("viewTransactionButton")}</Text>
-                </Pressable>
+                </Link>
               </View>
               <TransactionSection
                 loadingGetTransactions={
