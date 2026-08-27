@@ -133,5 +133,6 @@ export type MonthlyReportResponse = {
   data: MonthlyReportPaginatedData;
 };
 
+export * from "./addModalTransaction";
 export * from "./dashboard";
 

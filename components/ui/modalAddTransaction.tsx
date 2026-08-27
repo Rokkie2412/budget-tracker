@@ -33,21 +33,14 @@ import {
   predictCategory,
 } from "@/constants";
 import { useLanguageStore } from "@/stores/languageStore";
-import type { KeyLanguage } from "@/types";
-
-export interface AddTransactionFormValues {
-  type: "OUT" | "IN";
-  amount: string;
-  category: string;
-  description: string;
-  date: string;
-}
-
-export type AddTransactionModalProps = {
-  open: boolean;
-  handleClose: () => void;
-  onSubmit?: (values: AddTransactionFormValues) => Promise<void> | void;
-};
+import type {
+  AddTransactionFormValues,
+  AddTransactionModalProps,
+  CategoryPickerProps,
+  DatePickerModalProps,
+  KeyLanguage,
+  ModalContentProps,
+} from "@/types";
 
 const getTodayDateString = (): string => {
   const today = new Date();
@@ -73,16 +66,6 @@ const validationSchema = (t: KeyLanguage): Yup.ObjectSchema<AddTransactionFormVa
     description: Yup.string().required(t("descriptionRequired")),
     date: Yup.string().required(),
   });
-
-type CategoryPickerProps = {
-  open: boolean;
-  selectedCategory: string;
-  categories: readonly string[];
-  onSelect: (category: string) => void;
-  onClose: () => void;
-  title: string;
-  searchPlaceholder: string;
-};
 
 const CategoryPickerModal = ({
   open,
@@ -199,14 +182,6 @@ const CategoryPickerModal = ({
   );
 };
 
-type DatePickerModalProps = {
-  open: boolean;
-  selectedDate: string;
-  onSelect: (date: string) => void;
-  onClose: () => void;
-  title: string;
-};
-
 const DatePickerModal = ({
   open,
   selectedDate,
@@ -281,11 +256,6 @@ const DatePickerModal = ({
       </Pressable>
     </Modal>
   );
-};
-
-type ModalContentProps = {
-  onClose: () => void;
-  onSubmit?: (values: AddTransactionFormValues) => Promise<void> | void;
 };
 
 const AddTransactionModalContent = ({
