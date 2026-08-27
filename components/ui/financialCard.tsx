@@ -1,5 +1,4 @@
-import { Text } from "@/components/ui/text";
-import { useLanguageStore } from "@/stores/languageStore";
+import { View } from "react-native";
 import {
   ArrowDown,
   ArrowUp,
@@ -7,7 +6,9 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react-native";
-import { View } from "react-native";
+
+import { Text } from "@/components/ui/text";
+import { useLanguageStore } from "@/stores/languageStore";
 
 interface TypeCard {
   type: "total" | "outgoing" | "incoming";

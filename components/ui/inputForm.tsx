@@ -1,4 +1,3 @@
-import { ChevronDown, X } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   FlatList,
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { ChevronDown, X } from "lucide-react-native";
 
 import {
   FormControl,

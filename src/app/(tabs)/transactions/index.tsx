@@ -150,7 +150,6 @@ const TypeFilter = ({
 };
 
 const FilterCategoryIncome = ({
-  t,
   activeValue,
   setActiveValue,
 }: FilterCategoryIncomeType): React.ReactElement[] => {
@@ -250,7 +249,6 @@ const FilterCategory = ({
                 (typeof BUDGET_CATEGORIES_INCOME)[number] | null
               >
             }
-            t={t}
           />
         )}
         {(type === "all" || type === "expense") && (

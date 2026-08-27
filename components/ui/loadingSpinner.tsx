@@ -1,7 +1,8 @@
+import { View } from "react-native";
+
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { useLanguageStore } from "@/stores/languageStore";
-import { View } from "react-native";
 
 interface Props {
   text?: string;

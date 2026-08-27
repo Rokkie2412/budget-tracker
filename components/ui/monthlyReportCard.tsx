@@ -1,7 +1,9 @@
-import { useLanguageStore } from "@/stores/languageStore";
-import { ChevronRight } from "lucide-react-native";
 import React from "react";
 import { Pressable, View } from "react-native";
+import { ChevronRight } from "lucide-react-native";
+
+import { useLanguageStore } from "@/stores/languageStore";
+
 import { Text } from "./text";
 
 type MonthlyReportCardProps = {

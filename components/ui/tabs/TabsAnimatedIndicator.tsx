@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
   Easing,
   SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
 } from 'react-native-reanimated';
 import type { LayoutData } from '@gluestack-ui/core/tabs/creator';
+
 import { tabsAnimationConfig } from './animation-config';
-import { Platform } from 'react-native';
 
 interface TabsAnimatedIndicatorProps {
   selectedKey: any;

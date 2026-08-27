@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View } from "react-native";
 import { Tabs, usePathname } from "expo-router";
 import {
@@ -9,9 +9,12 @@ import {
 } from "lucide-react-native";
 
 import FloatingButton from "@/components/ui/floatingButton";
+import AddTransactionModal from "@/components/ui/modalAddTransaction";
 import { useLanguageStore } from "@/stores/languageStore";
 
 export default function TabLayout(): React.JSX.Element {
+  const [showAddTransactionModal, setShowAddTransactionModal] =
+    useState<boolean>(false);
   const { t } = useLanguageStore();
   const pathname = usePathname();
 
@@ -77,7 +80,19 @@ export default function TabLayout(): React.JSX.Element {
           }}
         />
       </Tabs>
-      {showFloatingButton && <FloatingButton onPress={(): void => {}} />}
+      {showFloatingButton && (
+        <FloatingButton
+          onPress={(): void => {
+            setShowAddTransactionModal(true);
+          }}
+        />
+      )}
+      <AddTransactionModal
+        open={showAddTransactionModal}
+        handleClose={(): void => {
+          setShowAddTransactionModal(false);
+        }}
+      />
     </View>
   );
 }

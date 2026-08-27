@@ -1,8 +1,8 @@
-import NoTransactionDataIcon from "assets/noTransactionDataIcon";
-import { Plus, SearchX } from "lucide-react-native";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
+import NoTransactionDataIcon from "assets/noTransactionDataIcon";
+import { Plus, SearchX } from "lucide-react-native";
 
 import { useLanguageStore } from "@/stores/languageStore";
 

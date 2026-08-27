@@ -1,9 +1,10 @@
+import type { Dispatch, SetStateAction } from "react";
+
 import {
   BUDGET_CATEGORIES_EXPENSE,
   BUDGET_CATEGORIES_INCOME,
 } from "@/constants";
 import type { TranslationKeys } from "@/i18n/translations";
-import type { Dispatch, SetStateAction } from "react";
 
 export interface IUserConnected {
   userId: string;

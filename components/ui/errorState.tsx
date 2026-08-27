@@ -1,12 +1,3 @@
-import { useLanguageStore } from "@/stores/languageStore";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  FileQuestion,
-  RefreshCw,
-  ServerCrash,
-  WifiOff,
-} from "lucide-react-native";
 import React from "react";
 import {
   GestureResponderEvent,
@@ -16,6 +7,16 @@ import {
   View,
 } from "react-native";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  FileQuestion,
+  RefreshCw,
+  ServerCrash,
+  WifiOff,
+} from "lucide-react-native";
+
+import { useLanguageStore } from "@/stores/languageStore";
 
 export type ErrorVariant =
   | "default"

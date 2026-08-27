@@ -1,5 +1,5 @@
-import type { ReactElement } from "react";
 import { Pressable, Text, View } from "react-native";
+import type { ReactElement } from "react";
 
 export type ButtonArray = {
   buttonLabel: string;

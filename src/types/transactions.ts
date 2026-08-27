@@ -45,7 +45,6 @@ export type DateFilterType = {
 };
 
 export type FilterCategoryIncomeType = {
-  t: KeyLanguage;
   activeValue: string | null;
   setActiveValue: Setter<(typeof BUDGET_CATEGORIES_INCOME)[number] | null>;
 };

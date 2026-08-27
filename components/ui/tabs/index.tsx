@@ -1,22 +1,23 @@
 'use client';
-import React, { useEffect, useRef, useMemo } from 'react';
-import { createTabs, TabsContext } from '@gluestack-ui/core/tabs/creator';
-import { UIIcon } from '@gluestack-ui/core/icon/creator';
-import {
-  tva,
-  withStyleContext,
-  useStyleContext,
-  type VariantProps,
-} from '@gluestack-ui/utils/nativewind-utils';
-import { styled } from 'nativewind';
-import { Pressable, Text, View, FlatList, Platform } from 'react-native';
+import React, { useEffect, useMemo,useRef } from 'react';
+import { FlatList, Platform,Pressable, Text, View } from 'react-native';
 import Animated, {
+  runOnJS,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  useAnimatedScrollHandler,
-  runOnJS,
 } from 'react-native-reanimated';
+import { UIIcon } from '@gluestack-ui/core/icon/creator';
+import { createTabs, TabsContext } from '@gluestack-ui/core/tabs/creator';
+import {
+  tva,
+  useStyleContext,
+  type VariantProps,
+  withStyleContext,
+} from '@gluestack-ui/utils/nativewind-utils';
+import { styled } from 'nativewind';
+
 import { TabsAnimatedIndicator } from './TabsAnimatedIndicator';
 
 const SCOPE = 'TABS';
@@ -465,11 +466,11 @@ TabsIndicator.displayName = 'TabsIndicator'
 
 export {
   Tabs,
-  TabsList,
-  TabsTrigger,
   TabsContent,
   TabsContentWrapper,
-  TabsTriggerText,
-  TabsTriggerIcon,
   TabsIndicator,
+  TabsList,
+  TabsTrigger,
+  TabsTriggerIcon,
+  TabsTriggerText,
 };

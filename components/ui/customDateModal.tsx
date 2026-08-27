@@ -1,10 +1,11 @@
-import { useLanguageStore } from "@/stores/languageStore";
-import type { Setter } from "@/types";
-import { BlurView } from "expo-blur";
-import { Calendar as CalendarIcon, X } from "lucide-react-native";
 import { type ReactElement, useMemo, useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 import { Calendar, DateData } from "react-native-calendars";
+import { BlurView } from "expo-blur";
+import { Calendar as CalendarIcon, X } from "lucide-react-native";
+
+import { useLanguageStore } from "@/stores/languageStore";
+import type { Setter } from "@/types";
 
 type Props = {
   open: boolean;

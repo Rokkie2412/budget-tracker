@@ -1,6 +1,7 @@
-import { Text } from "@/components/ui/text";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react-native";
 import { Pressable, View } from "react-native";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react-native";
+
+import { Text } from "@/components/ui/text";
 
 interface PaginationProps {
   totalPages: number;
