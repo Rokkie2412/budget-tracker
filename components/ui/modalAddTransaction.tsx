@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -14,6 +15,7 @@ import { Calendar, type DateData } from "react-native-calendars";
 import { BlurView } from "expo-blur";
 import { useFormik } from "formik";
 import {
+  AlertCircle,
   ArrowDownLeft,
   ArrowUpRight,
   Calendar as CalendarIcon,
@@ -24,6 +26,8 @@ import {
   Sparkles,
   X,
 } from "lucide-react-native";
+import { mutate } from "swr";
+import useSWRMutation from "swr/mutation";
 import * as Yup from "yup";
 
 import {
@@ -32,6 +36,7 @@ import {
   getCategoryColor,
   predictCategory,
 } from "@/constants";
+import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
 import type {
   AddTransactionFormValues,
@@ -41,6 +46,9 @@ import type {
   KeyLanguage,
   ModalContentProps,
 } from "@/types";
+import type { AddTransactionPayload } from "@/types/transactions";
+
+const postAddTransactionUrl = "/api/addTransaction";
 
 const getTodayDateString = (): string => {
   const today = new Date();
@@ -52,9 +60,7 @@ const getTodayDateString = (): string => {
 
 const validationSchema = (t: KeyLanguage): Yup.ObjectSchema<AddTransactionFormValues> =>
   Yup.object().shape({
-    type: Yup.string()
-      .oneOf<"OUT" | "IN">(["OUT", "IN"])
-      .required(),
+    type: Yup.string().oneOf<"OUT" | "IN">(["OUT", "IN"]).required(),
     amount: Yup.string()
       .required(t("amountRequired"))
       .test("is-positive-number", t("amountPositive"), (value: string | undefined): boolean => {
@@ -97,10 +103,7 @@ const CategoryPickerModal = ({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <Pressable
-        onPress={onClose}
-        className="flex-1 justify-center items-center bg-black/50 px-6"
-      >
+      <Pressable onPress={onClose} className="flex-1 justify-center items-center bg-black/50 px-6">
         <Pressable
           onPress={(e): void => e.stopPropagation()}
           className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl max-h-[80%]"
@@ -108,73 +111,70 @@ const CategoryPickerModal = ({
           {/* Header */}
           <View className="flex-row items-center justify-between pb-3 border-b border-gray-100 mb-3">
             <Text className="text-lg font-bold text-[#1E293B]">{title}</Text>
-            <Pressable
-              onPress={onClose}
-              className="p-1.5 rounded-full active:bg-gray-100"
-            >
+            <Pressable onPress={onClose} className="p-1.5 rounded-full active:bg-gray-100">
               <X size={20} color="#64748B" />
             </Pressable>
           </View>
 
-          {/* Search bar */}
+          {/* Search Bar */}
           <View className="flex-row items-center bg-[#F8FAFC] border border-gray-200 rounded-xl px-3 py-2 mb-3">
             <Search size={16} color="#94A3B8" />
             <TextInput
-              value={searchQuery}
-              onChangeText={setSearchQuery}
               placeholder={searchPlaceholder}
               placeholderTextColor="#94A3B8"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
               className="flex-1 ml-2 text-sm text-[#1E293B] p-0"
-              autoCapitalize="none"
+              autoFocus
             />
             {searchQuery.length > 0 && (
               <Pressable onPress={(): void => setSearchQuery("")}>
-                <X size={16} color="#94A3B8" />
+                <X size={14} color="#94A3B8" />
               </Pressable>
             )}
           </View>
 
           {/* Category List */}
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            className="w-full"
-            contentContainerStyle={{ paddingBottom: 8 }}
-          >
-            {filteredCategories.map((item: string): React.JSX.Element => {
-              const isSelected = selectedCategory === item;
-              const color = getCategoryColor(item);
-              return (
-                <Pressable
-                  key={item}
-                  onPress={(): void => {
-                    onSelect(item);
-                    onClose();
-                  }}
-                  className={`flex-row items-center justify-between p-3 rounded-xl mb-1.5 ${
-                    isSelected
-                      ? "bg-[#EEF3FA] border border-[#20304E]/20"
-                      : "active:bg-gray-50 border border-transparent"
-                  }`}
-                >
-                  <View className="flex-row items-center gap-3">
-                    <View
-                      style={{ backgroundColor: color }}
-                      className="w-3.5 h-3.5 rounded-full"
-                    />
-                    <Text
-                      className={`text-sm ${
-                        isSelected
-                          ? "font-bold text-[#20304E]"
-                          : "font-medium text-[#334155]"
-                      }`}
-                    >
-                      {item}
-                    </Text>
-                  </View>
-                  {isSelected && <Check size={18} color="#20304E" />}
-                </Pressable>
-              );
-            })}
+          <ScrollView showsVerticalScrollIndicator={false} className="max-h-72">
+            <View className="gap-1.5">
+              {filteredCategories.map((item: string): React.JSX.Element => {
+                const isSelected = selectedCategory === item;
+                const color = getCategoryColor(item);
+
+                return (
+                  <Pressable
+                    key={item}
+                    onPress={(): void => {
+                      onSelect(item);
+                      onClose();
+                    }}
+                    className={`flex-row items-center justify-between px-3.5 py-3 rounded-xl active:bg-gray-50 ${
+                      isSelected ? "bg-[#EEF3FA] border border-[#20304E]/20" : ""
+                    }`}
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <View
+                        style={{ backgroundColor: color }}
+                        className="w-3.5 h-3.5 rounded-full"
+                      />
+                      <Text
+                        className={`text-sm ${
+                          isSelected ? "font-bold text-[#20304E]" : "font-medium text-[#334155]"
+                        }`}
+                      >
+                        {item}
+                      </Text>
+                    </View>
+                    {isSelected && <Check size={18} color="#20304E" />}
+                  </Pressable>
+                );
+              })}
+              {filteredCategories.length === 0 && (
+                <View className="py-8 items-center">
+                  <Text className="text-sm text-gray-400">Tidak ada kategori ditemukan</Text>
+                </View>
+              )}
+            </View>
           </ScrollView>
         </Pressable>
       </Pressable>
@@ -189,16 +189,9 @@ const DatePickerModal = ({
   onClose,
   title,
 }: DatePickerModalProps): React.JSX.Element | null => {
-  const today = getTodayDateString();
+  const maxDate = getTodayDateString();
 
   if (!open) return null;
-
-  const handleDayPress = (day: DateData): void => {
-    if (day.dateString <= today) {
-      onSelect(day.dateString);
-      onClose();
-    }
-  };
 
   return (
     <Modal
@@ -208,10 +201,7 @@ const DatePickerModal = ({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <Pressable
-        onPress={onClose}
-        className="flex-1 justify-center items-center bg-black/50 px-6"
-      >
+      <Pressable onPress={onClose} className="flex-1 justify-center items-center bg-black/50 px-6">
         <Pressable
           onPress={(e): void => e.stopPropagation()}
           className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl"
@@ -222,34 +212,32 @@ const DatePickerModal = ({
               <CalendarIcon size={20} color="#20304E" />
               <Text className="text-lg font-bold text-[#1E293B]">{title}</Text>
             </View>
-            <Pressable
-              onPress={onClose}
-              className="p-1.5 rounded-full active:bg-gray-100"
-            >
+            <Pressable onPress={onClose} className="p-1.5 rounded-full active:bg-gray-100">
               <X size={20} color="#64748B" />
             </Pressable>
           </View>
 
-          {/* Calendar with maxDate set to today */}
+          {/* Calendar Picker (cannot select dates after today) */}
           <Calendar
-            current={selectedDate || today}
-            maxDate={today}
+            current={selectedDate}
+            maxDate={maxDate}
+            onDayPress={(day: DateData): void => {
+              onSelect(day.dateString);
+              onClose();
+            }}
             markedDates={{
-              [selectedDate || today]: {
+              [selectedDate]: {
                 selected: true,
                 selectedColor: "#20304E",
-                textColor: "#FFFFFF",
+                selectedTextColor: "#FFFFFF",
               },
             }}
-            onDayPress={handleDayPress}
             theme={{
               todayTextColor: "#20304E",
               arrowColor: "#20304E",
-              monthTextColor: "#20304E",
+              textDayFontWeight: "500",
               textMonthFontWeight: "bold",
               textDayHeaderFontWeight: "600",
-              textDayFontSize: 14,
-              textMonthFontSize: 16,
             }}
           />
         </Pressable>
@@ -266,6 +254,7 @@ const AddTransactionModalContent = ({
   const [showCategoryPicker, setShowCategoryPicker] = useState<boolean>(false);
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [isAutoCategory, setIsAutoCategory] = useState<boolean>(true);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const initialValues: AddTransactionFormValues = {
     type: "OUT",
@@ -283,11 +272,16 @@ const AddTransactionModalContent = ({
       { resetForm, setSubmitting },
     ): Promise<void> => {
       try {
+        setSubmitError(null);
         if (onSubmit) {
           await onSubmit(values);
         }
         resetForm();
         onClose();
+      } catch (err: unknown) {
+        const errorMsg =
+          err instanceof Error ? err.message : "Terjadi kesalahan saat menambahkan transaksi.";
+        setSubmitError(errorMsg);
       } finally {
         setSubmitting(false);
       }
@@ -308,71 +302,60 @@ const AddTransactionModalContent = ({
   } = formik;
 
   const availableCategories =
-    values.type === "IN"
-      ? BUDGET_CATEGORIES_INCOME
-      : BUDGET_CATEGORIES_EXPENSE;
+    values.type === "IN" ? BUDGET_CATEGORIES_INCOME : BUDGET_CATEGORIES_EXPENSE;
 
   // Debounced auto category prediction based on description keywords
   useEffect(() => {
     if (!isAutoCategory) return;
-    const desc = values.description.trim();
-    if (!desc) return;
 
-    const timer = setTimeout(() => {
-      const matched = predictCategory(desc, values.type);
-      if (matched && matched !== values.category) {
-        setFieldValue("category", matched);
+    const trimmedDesc = values.description.trim();
+    if (!trimmedDesc) return;
+
+    const timeoutId = setTimeout(() => {
+      const predicted = predictCategory(trimmedDesc, values.type);
+      if (predicted) {
+        setFieldValue("category", predicted);
         setFieldTouched("category", true, false);
       }
-    }, 450);
+    }, 300);
 
-    return (): void => {
-      clearTimeout(timer);
-    };
-  }, [
-    values.description,
-    values.type,
-    values.category,
-    isAutoCategory,
-    setFieldValue,
-    setFieldTouched,
-  ]);
+    return (): void => clearTimeout(timeoutId);
+  }, [values.description, values.type, isAutoCategory, setFieldValue, setFieldTouched]);
 
-  const handleTypeChange = (type: "OUT" | "IN"): void => {
-    setFieldValue("type", type);
-    setFieldValue("category", "");
+  const handleTypeChange = (newType: "OUT" | "IN"): void => {
+    setFieldValue("type", newType);
+    const validCategories: readonly string[] =
+      newType === "IN" ? BUDGET_CATEGORIES_INCOME : BUDGET_CATEGORIES_EXPENSE;
 
-    // If auto-category is on, re-evaluate prediction for new type
-    if (isAutoCategory && values.description.trim()) {
-      const matched = predictCategory(values.description.trim(), type);
-      if (matched) {
-        setFieldValue("category", matched);
+    if (values.category && !validCategories.includes(values.category)) {
+      if (isAutoCategory && values.description.trim()) {
+        const matched = predictCategory(values.description.trim(), newType);
+        setFieldValue("category", matched ?? "");
+      } else {
+        setFieldValue("category", "");
       }
     }
   };
 
-  const handleCategorySelect = (category: string): void => {
-    setFieldValue("category", category);
-    setFieldTouched("category", true, false);
-  };
-
-  const handleDateSelect = (date: string): void => {
-    setFieldValue("date", date);
-    setFieldTouched("date", true, false);
-  };
-
   const handleAmountChange = (text: string): void => {
-    const cleanNumbers = text.replace(/[^0-9]/g, "");
-    setFieldValue("amount", cleanNumbers);
+    const rawNumber = text.replace(/[^0-9]/g, "");
+    setFieldValue("amount", rawNumber);
+  };
+
+  const handleCategorySelect = (cat: string): void => {
+    setFieldValue("category", cat);
+    setFieldTouched("category", true, true);
+  };
+
+  const handleDateSelect = (dateStr: string): void => {
+    setFieldValue("date", dateStr);
+    setFieldTouched("date", true, true);
   };
 
   const handleToggleAutoCategory = (value: boolean): void => {
     setIsAutoCategory(value);
     if (value && values.description.trim()) {
-      const matched = predictCategory(
-        values.description.trim(),
-        values.type,
-      );
+      const matched = predictCategory(values.description.trim(), values.type);
       if (matched) {
         setFieldValue("category", matched);
         setFieldTouched("category", true, false);
@@ -387,52 +370,57 @@ const AddTransactionModalContent = ({
     return num.toLocaleString("id-ID");
   }, [values.amount]);
 
-  const selectedCategoryColor = values.category
-    ? getCategoryColor(values.category)
-    : null;
+  const selectedCategoryColor = values.category ? getCategoryColor(values.category) : null;
 
   return (
     <Pressable
       onPress={(e): void => e.stopPropagation()}
-      className="flex w-full max-w-sm bg-[#FFFFFF] shadow-xl rounded-3xl p-5"
+      className="w-full bg-white rounded-3xl p-5 shadow-2xl max-h-[90%]"
     >
-      {/* Header */}
+      {/* Modal Header */}
       <View className="flex-row w-full justify-between items-center pb-3 border-b border-gray-100 mb-4">
         <View className="flex-row items-center gap-2">
           <PlusCircle size={20} color="#20304E" />
-          <Text className="text-lg font-bold text-[#1E293B]">
-            {t("addTransactionTitle")}
-          </Text>
+          <Text className="text-lg font-bold text-[#1E293B]">{t("addTransactionTitle")}</Text>
         </View>
         <Pressable
-          onPress={onClose}
+          onPress={(): void => {
+            resetForm();
+            setSubmitError(null);
+            onClose();
+          }}
           className="p-1.5 rounded-full active:bg-gray-100"
         >
           <X size={20} color="#64748B" />
         </Pressable>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 4 }}
-      >
+      {/* Error Alert Banner */}
+      {submitError && (
+        <View className="flex-row items-center justify-between bg-red-50 border border-red-200 rounded-xl p-3 mb-3">
+          <View className="flex-row items-center gap-2 flex-1 mr-2">
+            <AlertCircle size={18} color="#DC2626" />
+            <Text className="text-xs text-red-600 font-medium flex-1">{submitError}</Text>
+          </View>
+          <Pressable onPress={(): void => setSubmitError(null)} className="p-1">
+            <X size={14} color="#DC2626" />
+          </Pressable>
+        </View>
+      )}
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 4 }}>
         {/* Type Switcher: Income / Outcome Button Group */}
         <View className="flex-row w-full bg-[#EEF3FA] p-1.5 rounded-xl mb-4">
           <Pressable
             onPress={(): void => handleTypeChange("OUT")}
-            className={`flex-1 py-2.5 flex-row items-center justify-center gap-1.5 rounded-lg ${
+            className={`flex-1 flex-row items-center justify-center py-2.5 rounded-lg gap-1.5 ${
               values.type === "OUT" ? "bg-[#20304E]" : "bg-transparent"
             }`}
           >
-            <ArrowUpRight
-              size={16}
-              color={values.type === "OUT" ? "#FFFFFF" : "#64748B"}
-            />
+            <ArrowUpRight size={16} color={values.type === "OUT" ? "#FFFFFF" : "#64748B"} />
             <Text
               className={`text-center text-sm font-semibold ${
-                values.type === "OUT"
-                  ? "text-[#FFFFFF]"
-                  : "text-[#1E293B]"
+                values.type === "OUT" ? "text-[#FFFFFF]" : "text-[#1E293B]"
               }`}
             >
               {t("outcome")}
@@ -441,19 +429,14 @@ const AddTransactionModalContent = ({
 
           <Pressable
             onPress={(): void => handleTypeChange("IN")}
-            className={`flex-1 py-2.5 flex-row items-center justify-center gap-1.5 rounded-lg ${
+            className={`flex-1 flex-row items-center justify-center py-2.5 rounded-lg gap-1.5 ${
               values.type === "IN" ? "bg-[#20304E]" : "bg-transparent"
             }`}
           >
-            <ArrowDownLeft
-              size={16}
-              color={values.type === "IN" ? "#FFFFFF" : "#64748B"}
-            />
+            <ArrowDownLeft size={16} color={values.type === "IN" ? "#FFFFFF" : "#64748B"} />
             <Text
               className={`text-center text-sm font-semibold ${
-                values.type === "IN"
-                  ? "text-[#FFFFFF]"
-                  : "text-[#1E293B]"
+                values.type === "IN" ? "text-[#FFFFFF]" : "text-[#1E293B]"
               }`}
             >
               {t("income")}
@@ -463,79 +446,59 @@ const AddTransactionModalContent = ({
 
         {/* Amount Input */}
         <View className="mb-3.5">
-          <Text className="text-xs font-semibold text-gray-500 mb-1.5">
-            {t("amount")}
-          </Text>
+          <Text className="text-xs font-semibold text-gray-500 mb-1.5">{t("amount")}</Text>
           <View
             className={`flex-row items-center bg-[#F8FAFC] border rounded-xl px-3 py-2.5 ${
-              touched.amount && errors.amount
-                ? "border-red-400"
-                : "border-gray-200"
+              touched.amount && errors.amount ? "border-red-400" : "border-gray-200"
             }`}
           >
             <Text className="text-sm font-bold text-[#20304E] mr-2">Rp</Text>
             <TextInput
+              keyboardType="numeric"
+              placeholder={t("amountPlaceholder")}
+              placeholderTextColor="#94A3B8"
               value={formattedDisplayAmount}
               onChangeText={handleAmountChange}
               onBlur={handleBlur("amount")}
-              placeholder={t("amountPlaceholder")}
-              placeholderTextColor="#94A3B8"
-              keyboardType="numeric"
               className="flex-1 text-sm font-semibold text-[#1E293B] p-0"
             />
           </View>
           {touched.amount && errors.amount ? (
-            <Text className="text-xs text-red-500 mt-1">
-              {errors.amount}
-            </Text>
+            <Text className="text-xs text-red-500 mt-1">{errors.amount}</Text>
           ) : null}
         </View>
 
         {/* Description Input */}
         <View className="mb-3.5">
-          <Text className="text-xs font-semibold text-gray-500 mb-1.5">
-            {t("description")}
-          </Text>
+          <Text className="text-xs font-semibold text-gray-500 mb-1.5">{t("description")}</Text>
           <View
             className={`flex-row items-center bg-[#F8FAFC] border rounded-xl px-3 py-2.5 ${
-              touched.description && errors.description
-                ? "border-red-400"
-                : "border-gray-200"
+              touched.description && errors.description ? "border-red-400" : "border-gray-200"
             }`}
           >
             <TextInput
+              placeholder={t("descriptionPlaceholder")}
+              placeholderTextColor="#94A3B8"
               value={values.description}
               onChangeText={handleChange("description")}
               onBlur={handleBlur("description")}
-              placeholder={t("descriptionPlaceholder")}
-              placeholderTextColor="#94A3B8"
               className="flex-1 text-sm text-[#1E293B] p-0"
             />
           </View>
           {touched.description && errors.description ? (
-            <Text className="text-xs text-red-500 mt-1">
-              {errors.description}
-            </Text>
+            <Text className="text-xs text-red-500 mt-1">{errors.description}</Text>
           ) : null}
         </View>
 
-        {/* Auto Category Switch */}
+        {/* Auto Category Toggle */}
         <View className="flex-row items-center justify-between bg-[#F8FAFC] border border-gray-200/80 rounded-xl px-3.5 py-2.5 mb-3.5">
           <View className="flex-row items-center gap-2.5 flex-1 pr-2">
             <View className="p-1.5 rounded-lg bg-[#EEF3FA]">
-              <Sparkles
-                size={16}
-                color={isAutoCategory ? "#20304E" : "#94A3B8"}
-              />
+              <Sparkles size={16} color={isAutoCategory ? "#20304E" : "#94A3B8"} />
             </View>
             <View className="flex-1">
-              <Text className="text-xs font-bold text-[#1E293B]">
-                {t("autoCategory")}
-              </Text>
-              <Text
-                className="text-[11px] text-gray-400"
-                numberOfLines={1}
-              >
+              <Text className="text-xs font-bold text-[#1E293B]">{t("autoCategory")}</Text>
+              <Text className="text-[11px] text-gray-400" numberOfLines={1}>
                 {t("autoCategoryDesc")}
               </Text>
             </View>
@@ -549,27 +512,21 @@ const AddTransactionModalContent = ({
           />
         </View>
 
-        {/* Category Dropdown Trigger */}
+        {/* Category Trigger */}
         <View className="mb-3.5">
           <View className="flex-row items-center justify-between mb-1.5">
-            <Text className="text-xs font-semibold text-gray-500">
-              {t("category")}
-            </Text>
+            <Text className="text-xs font-semibold text-gray-500">{t("category")}</Text>
             {isAutoCategory && values.category && (
               <View className="flex-row items-center gap-1 bg-[#EEF3FA] px-1.5 py-0.5 rounded-md">
                 <Sparkles size={10} color="#20304E" />
-                <Text className="text-[10px] font-semibold text-[#20304E]">
-                  Auto
-                </Text>
+                <Text className="text-[10px] font-semibold text-[#20304E]">Auto</Text>
               </View>
             )}
           </View>
           <Pressable
             onPress={(): void => setShowCategoryPicker(true)}
             className={`flex-row items-center justify-between bg-[#F8FAFC] border rounded-xl px-3 py-2.5 ${
-              touched.category && errors.category
-                ? "border-red-400"
-                : "border-gray-200"
+              touched.category && errors.category ? "border-red-400" : "border-gray-200"
             }`}
           >
             <View className="flex-row items-center gap-2 flex-1">
@@ -581,9 +538,7 @@ const AddTransactionModalContent = ({
               )}
               <Text
                 className={`text-sm ${
-                  values.category
-                    ? "font-semibold text-[#1E293B]"
-                    : "text-gray-400"
+                  values.category ? "font-semibold text-[#1E293B]" : "text-gray-400"
                 }`}
                 numberOfLines={1}
               >
@@ -593,26 +548,20 @@ const AddTransactionModalContent = ({
             <ChevronDown size={18} color="#64748B" />
           </Pressable>
           {touched.category && errors.category ? (
-            <Text className="text-xs text-red-500 mt-1">
-              {errors.category}
-            </Text>
+            <Text className="text-xs text-red-500 mt-1">{errors.category}</Text>
           ) : null}
         </View>
 
-        {/* Date Field Trigger */}
+        {/* Date Trigger */}
         <View className="mb-4">
-          <Text className="text-xs font-semibold text-gray-500 mb-1.5">
-            {t("date")}
-          </Text>
+          <Text className="text-xs font-semibold text-gray-500 mb-1.5">{t("date")}</Text>
           <Pressable
             onPress={(): void => setShowDatePicker(true)}
             className="flex-row items-center justify-between bg-[#F8FAFC] border border-gray-200 rounded-xl px-3 py-2.5 active:bg-gray-100"
           >
             <View className="flex-row items-center gap-2">
               <CalendarIcon size={16} color="#20304E" />
-              <Text className="text-sm font-semibold text-[#1E293B]">
-                {values.date}
-              </Text>
+              <Text className="text-sm font-semibold text-[#1E293B]">{values.date}</Text>
             </View>
             <ChevronDown size={18} color="#64748B" />
           </Pressable>
@@ -624,24 +573,23 @@ const AddTransactionModalContent = ({
         <Pressable
           onPress={(): void => {
             resetForm();
+            setSubmitError(null);
             onClose();
           }}
+          disabled={isSubmitting}
           className="px-4 py-2.5 rounded-xl bg-gray-100 active:bg-gray-200"
         >
-          <Text className="text-sm font-semibold text-gray-600">
-            {t("cancel")}
-          </Text>
+          <Text className="text-sm font-semibold text-gray-600">{t("cancel")}</Text>
         </Pressable>
 
         <Pressable
           onPress={(): void => handleSubmit()}
           disabled={isSubmitting}
-          className={`px-5 py-2.5 rounded-xl flex-row items-center justify-center ${
-            isSubmitting
-              ? "bg-[#20304E]/70"
-              : "bg-[#20304E] active:bg-[#162238]"
+          className={`px-5 py-2.5 rounded-xl flex-row items-center justify-center gap-2 ${
+            isSubmitting ? "bg-[#20304E]/70" : "bg-[#20304E] active:bg-[#162238]"
           }`}
         >
+          {isSubmitting && <ActivityIndicator size="small" color="#FFFFFF" />}
           <Text className="text-sm font-bold text-white">
             {isSubmitting ? t("commonLoading") : t("save")}
           </Text>
@@ -659,7 +607,7 @@ const AddTransactionModalContent = ({
         searchPlaceholder={t("searchCategory")}
       />
 
-      {/* Date Picker Sub-Modal (Max date: Today) */}
+      {/* Date Picker Sub-Modal */}
       <DatePickerModal
         open={showDatePicker}
         selectedDate={values.date}
@@ -671,11 +619,62 @@ const AddTransactionModalContent = ({
   );
 };
 
+const postTransactionFetcher =
+  (token: string | null) =>
+  async (
+    url: string,
+    { arg }: { arg: AddTransactionPayload },
+  ): Promise<{ message: string; data?: unknown }> => {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(arg),
+    });
+
+    if (!response.ok) {
+      const errorData = (await response.json().catch(() => ({}))) as { message?: string };
+      throw new Error(errorData.message || "Failed to add transaction");
+    }
+
+    return response.json();
+  };
+
 const AddTransactionModal = ({
   open,
   handleClose,
-  onSubmit,
 }: AddTransactionModalProps): React.JSX.Element => {
+  const { token, user } = useAuthStore();
+  const { trigger: addTransactionTrigger } = useSWRMutation(
+    postAddTransactionUrl,
+    postTransactionFetcher(token),
+  );
+
+  const handleFormSubmit = async (values: AddTransactionFormValues): Promise<void> => {
+    if (!user?.userId) {
+      throw new Error("User tidak teridentifikasi. Silakan login ulang.");
+    }
+
+    await addTransactionTrigger({
+      type: values.type,
+      amount: Number(values.amount.replace(/[^0-9]/g, "")),
+      category: values.category,
+      description: values.description.trim(),
+      date: values.date,
+      userId: user.userId,
+    });
+
+    await mutate((key: unknown): boolean =>
+      Array.isArray(key)
+        ? key[0] === "get-monthly-transactions" ||
+          key[0] === "get-transactions" ||
+          key[0] === "get-monthly-report"
+        : typeof key === "string" && key.startsWith("/api/"),
+    );
+  };
+
   return (
     <Modal
       animationType="fade"
@@ -684,10 +683,7 @@ const AddTransactionModal = ({
       onRequestClose={handleClose}
       statusBarTranslucent
     >
-      <Pressable
-        onPress={handleClose}
-        className="flex-1 justify-center items-center"
-      >
+      <Pressable onPress={handleClose} className="flex-1 justify-center items-center">
         <BlurView
           blurMethod="none"
           tint="systemChromeMaterialDark"
@@ -699,10 +695,7 @@ const AddTransactionModal = ({
             className="w-full items-center justify-center"
           >
             {open && (
-              <AddTransactionModalContent
-                onClose={handleClose}
-                onSubmit={onSubmit}
-              />
+              <AddTransactionModalContent onClose={handleClose} onSubmit={handleFormSubmit} />
             )}
           </KeyboardAvoidingView>
         </BlurView>

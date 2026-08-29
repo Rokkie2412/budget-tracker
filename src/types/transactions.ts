@@ -11,11 +11,9 @@ import {
   TransactionsPaginatedResponse,
 } from "@/types";
 
-export type FilterDateList =
-  (typeof FILTER_DATE_LIST_TYPE)[keyof typeof FILTER_DATE_LIST_TYPE];
+export type FilterDateList = (typeof FILTER_DATE_LIST_TYPE)[keyof typeof FILTER_DATE_LIST_TYPE];
 
-export type FilterTransactionType =
-  (typeof FILTER_TYPE)[keyof typeof FILTER_TYPE];
+export type FilterTransactionType = (typeof FILTER_TYPE)[keyof typeof FILTER_TYPE];
 
 export type useTranasctionType = {
   data: TransactionsPaginatedResponse["data"] | null;
@@ -94,4 +92,13 @@ export type MainContentProps = {
   mutate: () => void;
   isValidating: boolean;
   onRefresh: () => void;
+};
+
+export type AddTransactionPayload = {
+  type: "OUT" | "IN";
+  amount: number;
+  category: string;
+  description: string;
+  date: string;
+  userId: string;
 };

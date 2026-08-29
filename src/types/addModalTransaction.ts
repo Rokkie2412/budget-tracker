@@ -9,7 +9,6 @@ export interface AddTransactionFormValues {
 export type AddTransactionModalProps = {
   open: boolean;
   handleClose: () => void;
-  onSubmit?: (values: AddTransactionFormValues) => Promise<void> | void;
 };
 
 export type CategoryPickerProps = {
