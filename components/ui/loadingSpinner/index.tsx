@@ -1,14 +1,11 @@
-import { View } from "react-native";
+import { Text, View } from "react-native";
 
 import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
 import { useLanguageStore } from "@/stores/languageStore";
 
-interface Props {
-  text?: string;
-}
+import { LoadingSpinnerProps } from "./loadingSpinner.types";
 
-const LoadingSpinner = ({ text }: Props) => {
+const LoadingSpinner = ({ text }: LoadingSpinnerProps) => {
   const { t } = useLanguageStore();
   const loadingText = text ?? t("commonLoading");
   return (

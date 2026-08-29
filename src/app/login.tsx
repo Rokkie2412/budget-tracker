@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useFormik } from "formik";
 import { Eye, EyeOff, Globe, Lock, LogIn } from "lucide-react-native";
@@ -13,7 +7,6 @@ import * as Yup from "yup";
 
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import { CountryCode, InputForm } from "@/components/ui/inputForm";
-import { Text } from "@/components/ui/text";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
 import { KeyLanguage } from "@/types";
@@ -32,12 +25,8 @@ const phoneRegex = /^(\+?62|0)?[0-9]{8,13}$/;
 
 const loginValidationSchema = (t: KeyLanguage) =>
   Yup.object().shape({
-    userId: Yup.string()
-      .required(t("userIdRequired"))
-      .matches(phoneRegex, t("invalidPhone")),
-    password: Yup.string()
-      .required(t("passwordRequired"))
-      .min(6, t("passwordMinLength")),
+    userId: Yup.string().required(t("userIdRequired")).matches(phoneRegex, t("invalidPhone")),
+    password: Yup.string().required(t("passwordRequired")).min(6, t("passwordMinLength")),
   });
 
 const LoginPage = (): React.JSX.Element => {
@@ -84,8 +73,7 @@ const LoginPage = (): React.JSX.Element => {
         await loginStore(data.user, data.token);
         router.replace("/(tabs)/dashboard");
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : t("loginFailed");
+        const errorMessage = error instanceof Error ? error.message : t("loginFailed");
         setServerError(errorMessage);
       } finally {
         setSubmitting(false);
@@ -116,34 +104,24 @@ const LoginPage = (): React.JSX.Element => {
               <View className="w-16 h-16 bg-[#1A2B48] rounded-2xl justify-center items-center mb-1 shadow-md">
                 <LogIn size={32} color="#ffffff" />
               </View>
-              <Text className="text-2xl font-bold text-slate-900">
-                {t("welcome")}
-              </Text>
-              <Text className="text-center text-slate-500 text-sm px-2">
-                {t("welcomeSubs")}
-              </Text>
+              <Text className="text-2xl font-bold text-slate-900">{t("welcome")}</Text>
+              <Text className="text-center text-slate-500 text-sm px-2">{t("welcomeSubs")}</Text>
             </View>
 
             <View className="absolute right-4 top-24">
               <Pressable
-                onPress={(): Promise<void> =>
-                  setLanguage(language === "id" ? "en" : "id")
-                }
+                onPress={(): Promise<void> => setLanguage(language === "id" ? "en" : "id")}
                 className="flex-row items-center gap-1.5 px-3 py-1.5 bg-slate-200 rounded-full"
               >
                 <Globe size={16} color="#475569" />
-                <Text className="text-xs font-bold text-slate-700 uppercase">
-                  {language}
-                </Text>
+                <Text className="text-xs font-bold text-slate-700 uppercase">{language}</Text>
               </Pressable>
             </View>
 
             {/* Server Error Alert */}
             {serverError ? (
               <View className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                <Text className="text-xs text-red-600 font-medium text-center">
-                  {serverError}
-                </Text>
+                <Text className="text-xs text-red-600 font-medium text-center">{serverError}</Text>
               </View>
             ) : null}
 
@@ -156,16 +134,12 @@ const LoginPage = (): React.JSX.Element => {
                 onChangeText={formik.handleChange("userId")}
                 onBlur={formik.handleBlur("userId")}
                 error={
-                  formik.touched.userId && formik.errors.userId
-                    ? formik.errors.userId
-                    : undefined
+                  formik.touched.userId && formik.errors.userId ? formik.errors.userId : undefined
                 }
                 keyboardType="phone-pad"
                 showNumberDropdown
                 selectedCountry={country}
-                onSelectCountry={(selected: CountryCode): void =>
-                  setCountry(selected)
-                }
+                onSelectCountry={(selected: CountryCode): void => setCountry(selected)}
                 isRequired
               />
 
@@ -183,9 +157,7 @@ const LoginPage = (): React.JSX.Element => {
                 }
                 leftIcon={<Lock size={18} color="#94a3b8" className="mr-2" />}
                 rightIcon={
-                  <Pressable
-                    onPress={(): void => setShowPassword(!showPassword)}
-                  >
+                  <Pressable onPress={(): void => setShowPassword(!showPassword)}>
                     {showPassword ? (
                       <EyeOff size={18} color="#94a3b8" />
                     ) : (
@@ -201,12 +173,8 @@ const LoginPage = (): React.JSX.Element => {
                 isDisabled={formik.isSubmitting}
                 className="mt-2 py-3.5 rounded-xl bg-[#1A2B48] active:bg-[#142437] shadow-sm"
               >
-                {formik.isSubmitting ? (
-                  <ButtonSpinner className="mr-2" />
-                ) : null}
-                <ButtonText className="text-white font-semibold text-base">
-                  {t("login")}
-                </ButtonText>
+                {formik.isSubmitting ? <ButtonSpinner className="mr-2" /> : null}
+                <ButtonText className="text-white font-semibold text-base">{t("login")}</ButtonText>
               </Button>
             </View>
           </View>

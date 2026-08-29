@@ -1,13 +1,6 @@
-import { View } from "react-native";
-import {
-  ArrowDown,
-  ArrowUp,
-  TrendingDown,
-  TrendingUp,
-  Wallet,
-} from "lucide-react-native";
+import { Text, View } from "react-native";
+import { ArrowDown, ArrowUp, TrendingDown, TrendingUp, Wallet } from "lucide-react-native";
 
-import { Text } from "@/components/ui/text";
 import { useLanguageStore } from "@/stores/languageStore";
 
 interface TypeCard {
@@ -26,11 +19,7 @@ interface DataFromLastMonthProps {
   subString: string;
 }
 
-const DataFromLastMonth = ({
-  data,
-  status,
-  subString,
-}: DataFromLastMonthProps) => {
+const DataFromLastMonth = ({ data, status, subString }: DataFromLastMonthProps) => {
   if (data && status) {
     if (status === "plus") {
       return (
@@ -107,11 +96,7 @@ const FinancialCard = ({ type, amount, data, status }: Props) => {
       >
         Rp {parseFloat(amount || "0").toLocaleString("id-ID")}
       </Text>
-      <DataFromLastMonth
-        subString={t("lastMonthData")}
-        data={data}
-        status={status}
-      />
+      <DataFromLastMonth subString={t("lastMonthData")} data={data} status={status} />
     </View>
   );
 };

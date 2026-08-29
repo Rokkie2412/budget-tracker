@@ -1,10 +1,8 @@
 import React from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 
 import { useLanguageStore } from "@/stores/languageStore";
-
-import { Text } from "./text";
 
 type MonthlyReportCardProps = {
   date: Date;
@@ -23,13 +21,10 @@ export const MonthlyReportCard = ({
 }: MonthlyReportCardProps): React.JSX.Element => {
   const { t, language } = useLanguageStore();
 
-  const formattedDate = new Intl.DateTimeFormat(
-    language === "id" ? "id-ID" : "en-US",
-    {
-      month: "long",
-      year: "numeric",
-    },
-  ).format(date);
+  const formattedDate = new Intl.DateTimeFormat(language === "id" ? "id-ID" : "en-US", {
+    month: "long",
+    year: "numeric",
+  }).format(date);
 
   const formattedIncome = `Rp ${income.toLocaleString("id-ID")}`;
   const formattedExpense = `Rp ${expense.toLocaleString("id-ID")}`;
@@ -42,11 +37,7 @@ export const MonthlyReportCard = ({
         : `Rp ${total.toLocaleString("id-ID")}`;
 
   const totalTextColor =
-    total > 0
-      ? "text-[#007A55]"
-      : total < 0
-        ? "text-[#DC2626]"
-        : "text-[#1E293B]";
+    total > 0 ? "text-[#007A55]" : total < 0 ? "text-[#DC2626]" : "text-[#1E293B]";
 
   const content = (
     <View className="w-full bg-[#FFFFFF] p-5 rounded-2xl border border-[#EEF2F6] shadow-sm">
@@ -60,17 +51,13 @@ export const MonthlyReportCard = ({
           <Text className="text-xs font-semibold text-[#64748B] tracking-wider uppercase mb-1">
             {t("incoming")}
           </Text>
-          <Text className="text-lg font-bold text-[#0F172A]">
-            {formattedIncome}
-          </Text>
+          <Text className="text-lg font-bold text-[#0F172A]">{formattedIncome}</Text>
         </View>
         <View className="flex-col">
           <Text className="text-xs font-semibold text-[#64748B] tracking-wider uppercase mb-1">
             {t("outgoing")}
           </Text>
-          <Text className="text-lg font-bold text-[#0F172A]">
-            {formattedExpense}
-          </Text>
+          <Text className="text-lg font-bold text-[#0F172A]">{formattedExpense}</Text>
         </View>
       </View>
 
@@ -78,9 +65,7 @@ export const MonthlyReportCard = ({
         <Text className="text-xs font-bold text-[#1E293B] tracking-wider uppercase">
           {t("netBalance")}
         </Text>
-        <Text className={`text-lg font-bold ${totalTextColor}`}>
-          {formattedTotal}
-        </Text>
+        <Text className={`text-lg font-bold ${totalTextColor}`}>{formattedTotal}</Text>
       </View>
     </View>
   );
@@ -97,4 +82,3 @@ export const MonthlyReportCard = ({
 };
 
 export default MonthlyReportCard;
-

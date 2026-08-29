@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 import NoTransactionDataIcon from "assets/noTransactionDataIcon";
@@ -12,10 +12,7 @@ import ErrorStateComponent from "@/components/ui/errorState";
 import FinancialCard from "@/components/ui/financialCard";
 import LoadingSpinner from "@/components/ui/loadingSpinner";
 import Pagination from "@/components/ui/pagination";
-import { Text } from "@/components/ui/text";
-import TransactionCard, {
-  TransactionSkeleton,
-} from "@/components/ui/transactionCard";
+import TransactionCard, { TransactionSkeleton } from "@/components/ui/transactionCard";
 import { useRefetchWhenFocus } from "@/hooks";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
@@ -37,16 +34,13 @@ const useMonthSummary = (
   token: string | null,
   date?: string | Date,
 ): UseMonthSummaryReturn => {
-  const targetDate = date
-    ? new Date(date).toISOString()
-    : new Date().toISOString();
+  const targetDate = date ? new Date(date).toISOString() : new Date().toISOString();
   const url = `/api/getMonthSummary?userId=${encodeURIComponent(userId ?? "")}&date=${targetDate}`;
 
-  const { data, error, isLoading, isValidating, mutate } =
-    useSWR<MonthSummaryResponse>(
-      ["get-monthly-transactions", userId, targetDate], //listener
-      swrFetcher(url, token), //call api
-    );
+  const { data, error, isLoading, isValidating, mutate } = useSWR<MonthSummaryResponse>(
+    ["get-monthly-transactions", userId, targetDate], //listener
+    swrFetcher(url, token), //call api
+  );
 
   return {
     data: data?.data ?? null,
@@ -64,16 +58,13 @@ const useTransactions = (
   limit = 10,
   date?: string | Date,
 ): UseTransactionsReturn => {
-  const targetDate = date
-    ? new Date(date).toISOString()
-    : new Date().toISOString();
+  const targetDate = date ? new Date(date).toISOString() : new Date().toISOString();
   const url = `/api/getTransactions?userId=${encodeURIComponent(userId ?? "")}&date=${targetDate}&page=${page}&limit=${limit}`;
 
-  const { data, error, isLoading, isValidating, mutate } =
-    useSWR<TransactionsPaginatedResponse>(
-      ["get-transactions", userId, targetDate, page, limit],
-      swrFetcher(url, token),
-    );
+  const { data, error, isLoading, isValidating, mutate } = useSWR<TransactionsPaginatedResponse>(
+    ["get-transactions", userId, targetDate, page, limit],
+    swrFetcher(url, token),
+  );
 
   return {
     data: data?.data ?? null,
@@ -88,17 +79,11 @@ const NoTransactionData = ({ t }: { t: KeyLanguage }): React.JSX.Element => {
   return (
     <View className="flex flex-col gap-2 bg-[#FFFFFF] p-4 shadow-sm rounded-xl mt-2 justify-center items-center h-100">
       <NoTransactionDataIcon />
-      <Text className="text-2xl font-bold text-center">
-        {t("noTransactionDataTitle")}
-      </Text>
-      <Text className="text-md text-center text-[#1E293B] px-4">
-        {t("noTransactionData")}
-      </Text>
+      <Text className="text-2xl font-bold text-center">{t("noTransactionDataTitle")}</Text>
+      <Text className="text-md text-center text-[#1E293B] px-4">{t("noTransactionData")}</Text>
       <Pressable className="mt-4 flex-row items-center gap-1 bg-[#1C2A44] px-4 py-2 rounded-xl">
         <PlusIcon size={18} color="#ffffff" />
-        <Text className="text-white font-semibold text-lg">
-          {t("noTransactionDataButton")}
-        </Text>
+        <Text className="text-white font-semibold text-lg">{t("noTransactionDataButton")}</Text>
       </Pressable>
     </View>
   );
@@ -115,10 +100,7 @@ const ChartSection = ({
       <Text className="text-xl font-bold">{t("cashflow")}</Text>
       <Text>{t("detailCashflow")}</Text>
     </View>
-    <ButtonGroup
-      buttonArray={ButtonGroupList(t, setCashFlowActive)}
-      activeValue={cashFlowActive}
-    />
+    <ButtonGroup buttonArray={ButtonGroupList(t, setCashFlowActive)} activeValue={cashFlowActive} />
     <View>
       <DonatChart
         total={cashFlowActive === "expense" ? data?.outcome : data?.income}
@@ -152,9 +134,7 @@ const TransactionErrorState = ({
       <View className="w-12 h-12 rounded-full bg-red-50 items-center justify-center mb-3">
         <AlertCircle size={24} color="#EF4444" strokeWidth={2} />
       </View>
-      <Text className="text-base font-bold text-[#20304E] text-center mb-1">
-        {t("errorTitle")}
-      </Text>
+      <Text className="text-base font-bold text-[#20304E] text-center mb-1">{t("errorTitle")}</Text>
       <Text className="text-xs text-slate-500 text-center mb-4 max-w-65 leading-relaxed">
         {message || t("errorDescription")}
       </Text>
@@ -163,9 +143,7 @@ const TransactionErrorState = ({
         className="flex-row items-center justify-center gap-2 bg-[#20304E] active:bg-[#152136] px-4 py-2.5 rounded-lg shadow-sm"
       >
         <RefreshCw size={14} color="#FFFFFF" strokeWidth={2.2} />
-        <Text className="text-white text-xs font-semibold tracking-wide">
-          {t("retry")}
-        </Text>
+        <Text className="text-white text-xs font-semibold tracking-wide">{t("retry")}</Text>
       </Pressable>
     </View>
   );
@@ -200,18 +178,12 @@ const TransactionSection = ({
   }
 
   return (
-    <ScrollView
-      nestedScrollEnabled={true}
-      showsVerticalScrollIndicator={true}
-      className="max-h-96"
-    >
+    <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={true} className="max-h-96">
       {transactionList?.map((item, index) => (
         <View
           key={index}
           className={`p-2 ${
-            index === transactionList.length - 1
-              ? "border-b-0"
-              : "border-b border-[#D7E2FF]"
+            index === transactionList.length - 1 ? "border-b-0" : "border-b border-[#D7E2FF]"
           }`}
         >
           <TransactionCard
@@ -230,9 +202,7 @@ const TransactionSection = ({
 export default function HomeScreen(): React.JSX.Element {
   const { user, token } = useAuthStore((state) => state);
   const [page, setPage] = useState<number>(1);
-  const [cashFlowActive, setCashFlowActive] = useState<"income" | "expense">(
-    "expense",
-  );
+  const [cashFlowActive, setCashFlowActive] = useState<"income" | "expense">("expense");
   const { t } = useLanguageStore();
 
   const {
@@ -294,16 +264,10 @@ export default function HomeScreen(): React.JSX.Element {
           />
           <View className="flex-row gap-4 mt-2">
             <View className="flex-1">
-              <FinancialCard
-                type="incoming"
-                amount={monthSummary?.income?.toString() ?? "0"}
-              />
+              <FinancialCard type="incoming" amount={monthSummary?.income?.toString() ?? "0"} />
             </View>
             <View className="flex-1">
-              <FinancialCard
-                type="outgoing"
-                amount={monthSummary?.outcome?.toString() ?? "0"}
-              />
+              <FinancialCard type="outgoing" amount={monthSummary?.outcome?.toString() ?? "0"} />
             </View>
           </View>
 
@@ -323,17 +287,14 @@ export default function HomeScreen(): React.JSX.Element {
           {monthSummary && (
             <View className="flex p-4 pb-1 bg-white mt-4 rounded-xl">
               <View className="flex flex-row justify-between py-1">
-                <Text className="text-xl font-bold">
-                  {t("historyThisMonthTitle")}
-                </Text>
+                <Text className="text-xl font-bold">{t("historyThisMonthTitle")}</Text>
                 <Link href="/(tabs)/transactions">
                   <Text>{t("viewTransactionButton")}</Text>
                 </Link>
               </View>
               <TransactionSection
                 loadingGetTransactions={
-                  isTransactionsLoading ||
-                  (isTransactionsValidating && !transactions)
+                  isTransactionsLoading || (isTransactionsValidating && !transactions)
                 }
                 transactionList={transactions?.transactions ?? []}
                 error={transactionsError}

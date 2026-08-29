@@ -1,7 +1,6 @@
-import { View } from "react-native";
+import { Text, View } from "react-native";
 
 import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
-import { Text } from "@/components/ui/text";
 
 interface TransactionCardProps {
   title: string;

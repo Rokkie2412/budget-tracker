@@ -9,8 +9,7 @@ export const translations = {
     password: "Kata Sandi",
     userIdRequired: "Nomor telepon wajib diisi",
     passwordRequired: "Kata sandi wajib diisi",
-    invalidPhone:
-      "Format nomor telepon tidak valid (contoh: 08123456789 atau 628123456789)",
+    invalidPhone: "Format nomor telepon tidak valid (contoh: 08123456789 atau 628123456789)",
     passwordMinLength: "Kata sandi minimal 6 karakter",
     loginSuccess: "Login berhasil",
     loginFailed: "Login gagal",
@@ -31,8 +30,7 @@ export const translations = {
     lastMonthData: "dari bulan lalu",
     commonLoading: "Memuat data Anda...",
     errorTitle: "Terjadi Kesalahan",
-    errorDescription:
-      "Gagal memuat data. Silakan periksa koneksi Anda dan coba lagi.",
+    errorDescription: "Gagal memuat data. Silakan periksa koneksi Anda dan coba lagi.",
     retry: "Coba Lagi",
     goBack: "Kembali",
     cashflow: "Arus Kas",
@@ -87,6 +85,9 @@ export const translations = {
     autoCategory: "Kategori Otomatis",
     autoCategoryDesc: "Isi kategori otomatis berdasarkan keterangan",
     selectDate: "Pilih Tanggal",
+    donutChartMillion: "JT",
+    donutChartBillion: "M",
+    donutChartThousand: "RB",
   },
   en: {
     welcome: "Welcome",
@@ -98,8 +99,7 @@ export const translations = {
     password: "Password",
     userIdRequired: "Phone number is required",
     passwordRequired: "Password is required",
-    invalidPhone:
-      "Invalid phone number format (e.g. 08123456789 or +628123456789)",
+    invalidPhone: "Invalid phone number format (e.g. 08123456789 or +628123456789)",
     passwordMinLength: "Password must be at least 6 characters",
     loginSuccess: "Login successfully",
     loginFailed: "Login failed",
@@ -120,8 +120,7 @@ export const translations = {
     lastMonthData: "from last month",
     commonLoading: "Prepring your data...",
     errorTitle: "Something Went Wrong",
-    errorDescription:
-      "Failed to load data. Please check your connection and try again.",
+    errorDescription: "Failed to load data. Please check your connection and try again.",
     retry: "Try Again",
     goBack: "Go Back",
     cashflow: "Cash Flow",
@@ -176,6 +175,9 @@ export const translations = {
     autoCategory: "Auto Category",
     autoCategoryDesc: "Auto-fill category based on description",
     selectDate: "Select Date",
+    donutChartMillion: "M",
+    donutChartBillion: "B",
+    donutChartThousand: "K",
   },
 } as const;
 

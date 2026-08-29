@@ -9,10 +9,7 @@ import LoadingSpinner from "@/components/ui/loadingSpinner";
 import MonthlyReportCard from "@/components/ui/monthlyReportCard";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
-import {
-  MonthlyReportResponse,
-  type UseMonthlyReports,
-} from "@/types/monthlyReports";
+import { MonthlyReportResponse, type UseMonthlyReports } from "@/types/monthlyReports";
 import { swrFetcher } from "@/utils";
 
 interface UseMonthlyReportsReturn {
@@ -38,11 +35,10 @@ const useMonthlyReports = ({
   if (startMonth) params.set("startMonth", startMonth.toString());
   if (endMonth) params.set("endMonth", endMonth.toString());
   const url = `/api/getMonthlyReport?${params.toString()}`;
-  const { data, error, isLoading, mutate, isValidating } =
-    useSWR<MonthlyReportResponse>(
-      ["get-list-monthly-reports", userId, startMonth, endMonth, page],
-      swrFetcher(url, token),
-    );
+  const { data, error, isLoading, mutate, isValidating } = useSWR<MonthlyReportResponse>(
+    ["get-list-monthly-reports", userId, startMonth, endMonth, page],
+    swrFetcher(url, token),
+  );
 
   return {
     data,
@@ -78,7 +74,7 @@ const ReportIndexPage = (): React.JSX.Element => {
       <View className="flex flex-1 w-full h-full items-center justify-center">
         <LoadingSpinner />
       </View>
-    )
+    );
   }
 
   if (error) {
@@ -86,7 +82,7 @@ const ReportIndexPage = (): React.JSX.Element => {
       <View className="w-full h-full flex flex-1 items-center justify-center">
         <ErrorState />
       </View>
-    )
+    );
   }
 
   if (data?.data.reports.length === 0) {
@@ -94,7 +90,7 @@ const ReportIndexPage = (): React.JSX.Element => {
       <View className="w-full h-full flex flex-1 items-center justify-center">
         <EmptyState />
       </View>
-    )
+    );
   }
 
   console.log("DATA MONTHLY REPORT: ", data);
@@ -109,12 +105,7 @@ const ReportIndexPage = (): React.JSX.Element => {
             className="flex-1 w-full"
             contentContainerClassName="gap-3 pb-8"
             showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={isValidating}
-                onRefresh={handleRefresh}
-              />
-            }
+            refreshControl={<RefreshControl refreshing={isValidating} onRefresh={handleRefresh} />}
           >
             {data?.data?.reports.map((report) => (
               <MonthlyReportCard

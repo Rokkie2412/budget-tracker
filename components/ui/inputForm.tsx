@@ -4,6 +4,7 @@ import {
   Modal,
   NativeSyntheticEvent,
   Pressable,
+  Text,
   TextInputFocusEventData,
   TextInputProps,
   TouchableOpacity,
@@ -21,7 +22,6 @@ import {
   FormControlLabelText,
 } from "@/components/ui/form-control";
 import { Input, InputField } from "@/components/ui/input";
-import { Text } from "@/components/ui/text";
 import { useLanguageStore } from "@/stores/languageStore";
 
 export interface CountryCode {
@@ -90,8 +90,7 @@ export const InputForm = ({
   const { t } = useLanguageStore();
   const hasError = isInvalid || Boolean(error);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [currentCountry, setCurrentCountry] =
-    useState<CountryCode>(selectedCountry);
+  const [currentCountry, setCurrentCountry] = useState<CountryCode>(selectedCountry);
 
   const handleSelectCountry = (country: CountryCode): void => {
     setCurrentCountry(country);
@@ -121,9 +120,7 @@ export const InputForm = ({
             className="flex-row items-center gap-1 pr-2 mr-2 border-r border-slate-200"
           >
             <Text className="text-base">{currentCountry.flag}</Text>
-            <Text className="text-sm font-semibold text-slate-700">
-              {currentCountry.code}
-            </Text>
+            <Text className="text-sm font-semibold text-slate-700">{currentCountry.code}</Text>
             <ChevronDown size={14} color="#64748b" />
           </TouchableOpacity>
         ) : (
@@ -172,9 +169,7 @@ export const InputForm = ({
               className="w-full max-w-xs bg-white rounded-2xl p-4 gap-3 max-h-96"
             >
               <View className="flex-row justify-between items-center pb-2 border-b border-slate-100">
-                <Text className="text-base font-bold text-slate-800">
-                  {t("selectPhoneCode")}
-                </Text>
+                <Text className="text-base font-bold text-slate-800">{t("selectPhoneCode")}</Text>
                 <TouchableOpacity onPress={(): void => setModalVisible(false)}>
                   <X size={20} color="#64748b" />
                 </TouchableOpacity>
@@ -183,11 +178,7 @@ export const InputForm = ({
               <FlatList
                 data={COUNTRY_CODES}
                 keyExtractor={(item: CountryCode): string => item.iso}
-                renderItem={({
-                  item,
-                }: {
-                  item: CountryCode;
-                }): React.JSX.Element => (
+                renderItem={({ item }: { item: CountryCode }): React.JSX.Element => (
                   <TouchableOpacity
                     onPress={(): void => handleSelectCountry(item)}
                     className={`flex-row items-center justify-between p-3 rounded-xl mb-1 ${
@@ -198,13 +189,9 @@ export const InputForm = ({
                   >
                     <View className="flex-row items-center gap-3">
                       <Text className="text-xl">{item.flag}</Text>
-                      <Text className="text-sm font-medium text-slate-800">
-                        {item.name}
-                      </Text>
+                      <Text className="text-sm font-medium text-slate-800">{item.name}</Text>
                     </View>
-                    <Text className="text-sm font-semibold text-blue-600">
-                      {item.code}
-                    </Text>
+                    <Text className="text-sm font-semibold text-blue-600">{item.code}</Text>
                   </TouchableOpacity>
                 )}
               />

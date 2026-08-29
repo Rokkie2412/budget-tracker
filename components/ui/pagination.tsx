@@ -1,7 +1,5 @@
-import { Pressable, View } from "react-native";
+import { Pressable, Text,View } from "react-native";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react-native";
-
-import { Text } from "@/components/ui/text";
 
 interface PaginationProps {
   totalPages: number;
@@ -9,11 +7,7 @@ interface PaginationProps {
   setPage: (page: number) => void;
 }
 
-const Pagination = ({
-  totalPages,
-  page = 1,
-  setPage,
-}: PaginationProps): React.JSX.Element => {
+const Pagination = ({ totalPages, page = 1, setPage }: PaginationProps): React.JSX.Element => {
   return (
     <View className="flex flex-row items-center justify-center gap-2">
       <Pressable

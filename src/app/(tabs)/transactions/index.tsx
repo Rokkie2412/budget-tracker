@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import useSWR from "swr";
@@ -10,12 +10,8 @@ import EmptyComponent from "@/components/ui/emptyState";
 import ErrorComponent from "@/components/ui/errorState";
 import LoadingSpinner from "@/components/ui/loadingSpinner";
 import Pagination from "@/components/ui/pagination";
-import { Text } from "@/components/ui/text";
 import TransactionCard from "@/components/ui/transactionCard";
-import {
-  BUDGET_CATEGORIES_EXPENSE,
-  BUDGET_CATEGORIES_INCOME,
-} from "@/constants";
+import { BUDGET_CATEGORIES_EXPENSE, BUDGET_CATEGORIES_INCOME } from "@/constants";
 import { useRefetchWhenFocus } from "@/hooks";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
@@ -66,19 +62,10 @@ const useTransaction = ({
     params.set("category", category);
   }
   const url = `/api/getTransactions?${params.toString()}`;
-  const { data, error, isLoading, mutate, isValidating } =
-    useSWR<TransactionsPaginatedResponse>(
-      [
-        "get-list-transaction",
-        userId,
-        startDate,
-        page,
-        endDate,
-        transactionType,
-        category,
-      ],
-      swrFetcher(url, token),
-    );
+  const { data, error, isLoading, mutate, isValidating } = useSWR<TransactionsPaginatedResponse>(
+    ["get-list-transaction", userId, startDate, page, endDate, transactionType, category],
+    swrFetcher(url, token),
+  );
   return {
     data: data?.data ?? null,
     isLoading: isLoading && !data,
@@ -101,11 +88,7 @@ const DateFilter = ({
   setShowCustomDateModal,
   isDisabled,
 }: DateFilterType): React.ReactElement => {
-  const listButton = getListButtonDateRange(
-    t,
-    setActiveValue,
-    setShowCustomDateModal,
-  );
+  const listButton = getListButtonDateRange(t, setActiveValue, setShowCustomDateModal);
 
   return (
     <View className="flex flex-col w-full">
@@ -140,13 +123,7 @@ const TypeFilter = ({
   isDisabled,
 }: TypeFilterProps): React.ReactElement => {
   const listButton = listButtonTransactionsType(t, setActiveValue);
-  return (
-    <ButtonGroup
-      isDisabled={isDisabled}
-      buttonArray={listButton}
-      activeValue={activeValue}
-    />
-  );
+  return <ButtonGroup isDisabled={isDisabled} buttonArray={listButton} activeValue={activeValue} />;
 };
 
 const FilterCategoryIncome = ({
@@ -241,25 +218,17 @@ const FilterCategory = ({
       >
         {(type === "all" || type === "income") && (
           <FilterCategoryIncome
-            activeValue={
-              activeValue as (typeof BUDGET_CATEGORIES_INCOME)[number]
-            }
+            activeValue={activeValue as (typeof BUDGET_CATEGORIES_INCOME)[number]}
             setActiveValue={
-              setActiveValue as Setter<
-                (typeof BUDGET_CATEGORIES_INCOME)[number] | null
-              >
+              setActiveValue as Setter<(typeof BUDGET_CATEGORIES_INCOME)[number] | null>
             }
           />
         )}
         {(type === "all" || type === "expense") && (
           <FilterCategoryExpense
-            activeValue={
-              activeValue as (typeof BUDGET_CATEGORIES_EXPENSE)[number]
-            }
+            activeValue={activeValue as (typeof BUDGET_CATEGORIES_EXPENSE)[number]}
             setActiveValue={
-              setActiveValue as Setter<
-                (typeof BUDGET_CATEGORIES_EXPENSE)[number] | null
-              >
+              setActiveValue as Setter<(typeof BUDGET_CATEGORIES_EXPENSE)[number] | null>
             }
             t={t}
           />
@@ -273,9 +242,7 @@ const useClearCategoryEffect = (
   filterType: FilterTransactionType,
   filterCategory: string,
   setFilterCategory: Setter<
-    | (typeof BUDGET_CATEGORIES_INCOME)[number]
-    | (typeof BUDGET_CATEGORIES_EXPENSE)[number]
-    | null
+    (typeof BUDGET_CATEGORIES_INCOME)[number] | (typeof BUDGET_CATEGORIES_EXPENSE)[number] | null
   >,
 ) => {
   useEffect(() => {
@@ -286,19 +253,11 @@ const useClearCategoryEffect = (
   }, [filterType]);
 };
 
-const ContentBody = ({
-  data,
-  page,
-  setPage,
-  isValidating,
-  onRefresh,
-}: ContentBodyProps) => {
+const ContentBody = ({ data, page, setPage, isValidating, onRefresh }: ContentBodyProps) => {
   return (
     <>
       <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={isValidating} onRefresh={onRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={isValidating} onRefresh={onRefresh} />}
         nestedScrollEnabled
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-8"
@@ -308,9 +267,7 @@ const ContentBody = ({
             <View
               key={item._id}
               className={`flex w-full ${
-                index !== data.transactions.length - 1
-                  ? "border-b border-[#E2E8F0]"
-                  : ""
+                index !== data.transactions.length - 1 ? "border-b border-[#E2E8F0]" : ""
               } py-2`}
             >
               <TransactionCard
@@ -394,11 +351,7 @@ const TransactionList = () => {
     category: filterCategory,
   });
 
-  useClearCategoryEffect(
-    filterType,
-    filterCategory as string,
-    setFilterCategory,
-  );
+  useClearCategoryEffect(filterType, filterCategory as string, setFilterCategory);
 
   useRefetchWhenFocus(mutate);
 
