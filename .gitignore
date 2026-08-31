@@ -48,3 +48,5 @@ example
 
 # vscode
 .vscode/
+# Local Netlify folder
+.netlify

@@ -1,0 +1,8 @@
+[build]
+  command = "npx expo export -p web"
+  publish = "dist/client"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200
