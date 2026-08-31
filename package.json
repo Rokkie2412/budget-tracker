@@ -1,7 +1,7 @@
 {
   "name": "budget-tracker",
   "main": "expo-router/entry",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "expo start",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@expo/html-elements": "^0.12.5",
+    "@expo/server": "^0.7.5",
     "@expo/ui": "~57.0.13",
     "@gluestack-ui/core": "^5.0.0-alpha.0",
     "@gluestack-ui/utils": "^5.0.1-alpha.0",
