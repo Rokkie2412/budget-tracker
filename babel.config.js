@@ -11,6 +11,7 @@ module.exports = function (api) {
           root: ["./"],
 
           alias: {
+            "lucide-react-native": "lucide-react",
             "@/components/ui": "./components/ui",
             "@": "./src",
             "tailwind.config": "./tailwind.config.js",
