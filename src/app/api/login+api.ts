@@ -19,16 +19,8 @@ export const POST = async (request: Request): Promise<Response> => {
     const body: IUserConnected = await request.json();
     const { userId, password } = body;
 
-    if (
-      !userId ||
-      typeof userId !== "string" ||
-      !password ||
-      typeof password !== "string"
-    ) {
-      return Response.json(
-        { message: "userId and password are required." },
-        { status: 400 },
-      );
+    if (!userId || typeof userId !== "string" || !password || typeof password !== "string") {
+      return Response.json({ message: "userId and password are required." }, { status: 400 });
     }
 
     const user: IUserConnected | null = await UserConnected.findOne({
@@ -58,8 +50,7 @@ export const POST = async (request: Request): Promise<Response> => {
       },
     });
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal Server Error";
+    const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
     return Response.json(
       { message: "An error occurred on the server.", error: errorMessage },
       { status: 500 },

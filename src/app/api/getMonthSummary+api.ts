@@ -108,9 +108,7 @@ const getCategoryBreakdown = async (
 
     if (item._id.type === "OUT") {
       const percentage =
-        outgoingTotal > 0
-          ? parseFloat(((total / outgoingTotal) * 100).toFixed(1))
-          : 0;
+        outgoingTotal > 0 ? parseFloat(((total / outgoingTotal) * 100).toFixed(1)) : 0;
       expenses.push({
         category: rawCategory as ExpenseCategory,
         total,
@@ -120,9 +118,7 @@ const getCategoryBreakdown = async (
       });
     } else if (item._id.type === "IN") {
       const percentage =
-        incomingTotal > 0
-          ? parseFloat(((total / incomingTotal) * 100).toFixed(1))
-          : 0;
+        incomingTotal > 0 ? parseFloat(((total / incomingTotal) * 100).toFixed(1)) : 0;
       income.push({
         category: rawCategory as IncomeCategory,
         total,
@@ -139,10 +135,7 @@ const getCategoryBreakdown = async (
   };
 };
 
-const handleMonthSummary = async (
-  userId: string,
-  dateInput?: string | Date,
-): Promise<Response> => {
+const handleMonthSummary = async (userId: string, dateInput?: string | Date): Promise<Response> => {
   const trimmedId = userId?.trim();
   if (
     !trimmedId ||
@@ -150,10 +143,7 @@ const handleMonthSummary = async (
     trimmedId === "undefined" ||
     typeof trimmedId !== "string"
   ) {
-    return Response.json(
-      { message: "Valid userId is required." },
-      { status: 400 },
-    );
+    return Response.json({ message: "Valid userId is required." }, { status: 400 });
   }
 
   const hashedUserId = hashUserId(trimmedId);
@@ -247,8 +237,7 @@ export const GET = async (request: Request): Promise<Response> => {
 
     return await handleMonthSummary(userId, date);
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal Server Error";
+    const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
     return Response.json(
       { message: "An error occurred on the server.", error: errorMessage },
       { status: 500 },

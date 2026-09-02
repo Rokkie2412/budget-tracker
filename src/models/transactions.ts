@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import type { ITransaction } from "../types";
+import type { ITransaction } from "@/types";
 
 const TransactionSchema = new mongoose.Schema<ITransaction>(
   {
@@ -18,7 +18,6 @@ const TransactionSchema = new mongoose.Schema<ITransaction>(
 );
 
 const Transaction: mongoose.Model<ITransaction> =
-  mongoose.models.Transaction ||
-  mongoose.model<ITransaction>("Transaction", TransactionSchema);
+  mongoose.models.Transaction || mongoose.model<ITransaction>("Transaction", TransactionSchema);
 
 export default Transaction;

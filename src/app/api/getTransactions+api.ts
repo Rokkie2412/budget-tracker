@@ -1,7 +1,4 @@
-import {
-  BUDGET_CATEGORIES_EXPENSE,
-  BUDGET_CATEGORIES_INCOME,
-} from "@/constants";
+import { BUDGET_CATEGORIES_EXPENSE, BUDGET_CATEGORIES_INCOME } from "@/constants";
 import connectDB from "@/lib/connectDataBase";
 import { hashUserId } from "@/lib/hashUserId";
 import { verifyAuth } from "@/lib/jwtToken";
@@ -29,10 +26,7 @@ const handleGetTransactions = async (
     trimmedId === "undefined" ||
     typeof trimmedId !== "string"
   ) {
-    return Response.json(
-      { message: "Valid userId is required." },
-      { status: 400 },
-    );
+    return Response.json({ message: "Valid userId is required." }, { status: 400 });
   }
 
   const hashedUserId = hashUserId(trimmedId);
@@ -50,10 +44,7 @@ const handleGetTransactions = async (
   } else {
     const targetDate = dateInput ? new Date(dateInput) : new Date();
     if (isNaN(targetDate.getTime())) {
-      return Response.json(
-        { message: "Invalid date format." },
-        { status: 400 },
-      );
+      return Response.json({ message: "Invalid date format." }, { status: 400 });
     }
     const year = targetDate.getFullYear();
     const month = targetDate.getMonth();
@@ -84,11 +75,7 @@ const handleGetTransactions = async (
 
   const [totalTransactions, transactions] = await Promise.all([
     Transaction.countDocuments(transactionFilter),
-    Transaction.find(transactionFilter)
-      .sort({ date: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
+    Transaction.find(transactionFilter).sort({ date: -1 }).skip(skip).limit(limit).lean(),
   ]);
 
   const totalPages = Math.ceil(totalTransactions / limit);
@@ -155,8 +142,7 @@ export const GET = async (request: Request): Promise<Response> => {
       limit,
     );
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal Server Error";
+    const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
     return Response.json(
       { message: "An error occurred on the server.", error: errorMessage },
       { status: 500 },

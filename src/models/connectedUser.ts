@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import type { IUserConnected } from "../types";
+import type { IUserConnected } from "@/types";
 
 const UserConnectedSchema = new mongoose.Schema<IUserConnected>(
   {
@@ -22,10 +22,6 @@ const UserConnectedSchema = new mongoose.Schema<IUserConnected>(
 
 const UserConnected: mongoose.Model<IUserConnected> =
   mongoose.models.UserConnected ||
-  mongoose.model<IUserConnected>(
-    "UserConnected",
-    UserConnectedSchema,
-    "user-connected",
-  );
+  mongoose.model<IUserConnected>("UserConnected", UserConnectedSchema, "user-connected");
 
 export default UserConnected;

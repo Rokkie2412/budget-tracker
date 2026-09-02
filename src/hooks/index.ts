@@ -1,5 +1,5 @@
-import { useCallback } from "react";
 import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 
 export const useRefetchWhenFocus = (fn: () => any) => {
   useFocusEffect(

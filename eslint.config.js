@@ -14,6 +14,7 @@ module.exports = defineConfig([
     rules: {
       // Disable noisy import default naming rule
       "import/no-named-as-default": "off",
+      "import/no-unresolved": "off",
 
       // Disable default unused-vars in favor of unused-imports
       "no-unused-vars": "off",
@@ -36,18 +37,15 @@ module.exports = defineConfig([
         "warn",
         {
           groups: [
-            // Side effect imports (e.g. polyfills, CSS/styles)
+            // 1. Side effect imports (e.g. polyfills, global CSS)
             ["^\\u0000"],
-            // Node.js built-ins prefix
-            ["^node:"],
-            // React and React Native related packages first, then Expo, then external libraries
-            ["^react$", "^react-native$", "^react", "^expo", "^@?\\w"],
-            // Internal path aliases (e.g. `@/components`, `@/app`, etc.)
-            ["^@/"],
-            // Relative imports: parent imports first, then sibling/current directory imports
-            ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
+            // 2. Library luar (npm packages: React, React Native, Expo, Lucide, SWR, dll.)
+            ["^node:", "^(?!(assets|components|src)(/|$))@?\\w"],
+            // 3. Import internal dari folder berbeda (`@/...`, `assets/...`, `components/...`, `src/...`, `../...`)
+            ["^@/", "^(assets|components|src)(/|$)", "^\\.\\.(?!/?$)", "^\\.\\./?$"],
+            // 4. Import internal dari folder yang sama (`./...`)
             ["^\\./(?=.*/)(?!/?$)", "^\\.(?!/?$)", "^\\./?$"],
-            // Style imports
+            // 5. Style imports (.css, .scss)
             ["^.+\\.s?css$"],
           ],
         },

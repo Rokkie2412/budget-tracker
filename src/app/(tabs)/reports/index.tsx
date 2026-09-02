@@ -9,7 +9,7 @@ import LoadingSpinner from "@/components/ui/loadingSpinner";
 import MonthlyReportCard from "@/components/ui/monthlyReportCard";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
-import { MonthlyReportResponse, type UseMonthlyReports } from "@/types/monthlyReports";
+import type { MonthlyReportResponse, UseMonthlyReports } from "@/types/monthlyReports";
 import { swrFetcher } from "@/utils";
 
 interface UseMonthlyReportsReturn {

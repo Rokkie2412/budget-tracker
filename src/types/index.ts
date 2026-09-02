@@ -1,9 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 
-import {
-  BUDGET_CATEGORIES_EXPENSE,
-  BUDGET_CATEGORIES_INCOME,
-} from "@/constants";
+import { BUDGET_CATEGORIES_EXPENSE, BUDGET_CATEGORIES_INCOME } from "@/constants";
 import type { TranslationKeys } from "@/i18n/translations";
 
 export interface IUserConnected {
@@ -135,4 +132,3 @@ export type MonthlyReportResponse = {
 
 export * from "./addModalTransaction";
 export * from "./dashboard";
-

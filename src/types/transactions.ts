@@ -48,7 +48,6 @@ export type FilterCategoryIncomeType = {
 };
 
 export type FilterCategoryExpenseType = {
-  t: KeyLanguage;
   activeValue: string | null;
   setActiveValue: Setter<(typeof BUDGET_CATEGORIES_EXPENSE)[number] | null>;
 };
@@ -59,7 +58,6 @@ export type FilterCatrories =
   | null;
 
 export type FilterCategoryType = {
-  t: KeyLanguage;
   activeValue: string;
   setActiveValue: Setter<FilterCatrories>;
   type: FilterTransactionType;

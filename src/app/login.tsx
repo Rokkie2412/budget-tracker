@@ -1,12 +1,13 @@
-import { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useFormik } from "formik";
 import { Eye, EyeOff, Globe, Lock, LogIn } from "lucide-react-native";
+import { useState } from "react";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import * as Yup from "yup";
 
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
-import { CountryCode, InputForm } from "@/components/ui/inputForm";
+import InputForm from "@/components/ui/inputForm";
+import type { CountryCode } from "@/components/ui/inputForm/inputForm.types";
 import { useAuthStore } from "@/stores/authStore";
 import { useLanguageStore } from "@/stores/languageStore";
 import { KeyLanguage } from "@/types";

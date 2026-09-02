@@ -1,6 +1,6 @@
 // src/app/_layout.tsx
-import { useEffect } from "react";
 import { router, Stack, useSegments } from "expo-router";
+import { useEffect } from "react";
 
 import AuthSplashScreen from "@/components/ui/authSplashScreen";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";

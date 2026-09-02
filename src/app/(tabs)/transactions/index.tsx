@@ -1,7 +1,7 @@
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import useSWR from "swr";
 
 import ButtonGroup from "@/components/ui/buttonGroup";
@@ -165,7 +165,6 @@ const FilterCategoryIncome = ({
 };
 
 const FilterCategoryExpense = ({
-  t,
   activeValue,
   setActiveValue,
 }: FilterCategoryExpenseType): React.ReactElement[] => {
@@ -204,7 +203,6 @@ const FilterCategoryExpense = ({
 };
 
 const FilterCategory = ({
-  t,
   activeValue,
   setActiveValue,
   type,
@@ -230,7 +228,6 @@ const FilterCategory = ({
             setActiveValue={
               setActiveValue as Setter<(typeof BUDGET_CATEGORIES_EXPENSE)[number] | null>
             }
-            t={t}
           />
         )}
       </ScrollView>
@@ -384,7 +381,6 @@ const TransactionList = () => {
               isDisabled={isLoading || error}
             />
             <FilterCategory
-              t={t}
               activeValue={filterCategory as string}
               setActiveValue={setFilterCategory}
               type={filterType}

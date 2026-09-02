@@ -36,10 +36,7 @@ const handleGetMonthlyReport = async (
     trimmedId === "undefined" ||
     typeof trimmedId !== "string"
   ) {
-    return Response.json(
-      { message: "Valid userId is required." },
-      { status: 400 },
-    );
+    return Response.json({ message: "Valid userId is required." }, { status: 400 });
   }
 
   const hashedUserId = hashUserId(trimmedId);
@@ -53,39 +50,17 @@ const handleGetMonthlyReport = async (
   if (startDateInput) {
     const startMonth = new Date(startDateInput);
     if (isNaN(startMonth.getTime())) {
-      return Response.json(
-        { message: "Invalid start date provided." },
-        { status: 400 },
-      );
+      return Response.json({ message: "Invalid start date provided." }, { status: 400 });
     }
-    startMonthDate = new Date(
-      startMonth.getFullYear(),
-      startMonth.getMonth(),
-      1,
-      0,
-      0,
-      0,
-      0,
-    );
+    startMonthDate = new Date(startMonth.getFullYear(), startMonth.getMonth(), 1, 0, 0, 0, 0);
   }
 
   if (endDateInput) {
     const endMonth = new Date(endDateInput);
     if (isNaN(endMonth.getTime())) {
-      return Response.json(
-        { message: "Invalid end date provided." },
-        { status: 400 },
-      );
+      return Response.json({ message: "Invalid end date provided." }, { status: 400 });
     }
-    endMonthDate = new Date(
-      endMonth.getFullYear(),
-      endMonth.getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-      999,
-    );
+    endMonthDate = new Date(endMonth.getFullYear(), endMonth.getMonth() + 1, 0, 23, 59, 59, 999);
   }
 
   const matchFilter: Record<string, unknown> = {
@@ -104,42 +79,41 @@ const handleGetMonthlyReport = async (
     matchFilter.date = { $lte: endMonthDate };
   }
 
-  const [aggregateResult]: AggregationFacetResult[] =
-    await Transaction.aggregate([
-      {
-        $match: matchFilter,
-      },
-      {
-        $group: {
-          _id: {
-            year: { $year: "$date" },
-            month: { $month: "$date" },
+  const [aggregateResult]: AggregationFacetResult[] = await Transaction.aggregate([
+    {
+      $match: matchFilter,
+    },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$date" },
+          month: { $month: "$date" },
+        },
+        income: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "IN"] }, "$amount", 0],
           },
-          income: {
-            $sum: {
-              $cond: [{ $eq: ["$type", "IN"] }, "$amount", 0],
-            },
-          },
-          expense: {
-            $sum: {
-              $cond: [{ $eq: ["$type", "OUT"] }, "$amount", 0],
-            },
+        },
+        expense: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "OUT"] }, "$amount", 0],
           },
         },
       },
-      {
-        $sort: {
-          "_id.year": -1,
-          "_id.month": -1,
-        },
+    },
+    {
+      $sort: {
+        "_id.year": -1,
+        "_id.month": -1,
       },
-      {
-        $facet: {
-          data: [{ $skip: skip }, { $limit: limit }],
-          totalCount: [{ $count: "count" }],
-        },
+    },
+    {
+      $facet: {
+        data: [{ $skip: skip }, { $limit: limit }],
+        totalCount: [{ $count: "count" }],
       },
-    ]);
+    },
+  ]);
 
   const rawList = aggregateResult?.data ?? [];
   const totalMonths = aggregateResult?.totalCount?.[0]?.count ?? 0;
@@ -147,9 +121,7 @@ const handleGetMonthlyReport = async (
 
   const reports: MonthlyReportItem[] = rawList.map(
     (item: MonthlyAggregationRaw): MonthlyReportItem => ({
-      date: new Date(
-        Date.UTC(item._id.year, item._id.month - 1, 1),
-      ).toISOString(),
+      date: new Date(Date.UTC(item._id.year, item._id.month - 1, 1)).toISOString(),
       income: item.income,
       expense: item.expense,
       total: item.income - item.expense,
@@ -197,16 +169,9 @@ export const GET = async (request: Request): Promise<Response> => {
       );
     }
 
-    return await handleGetMonthlyReport(
-      userId,
-      startDateMonth,
-      endDateMonth,
-      page,
-      limit,
-    );
+    return await handleGetMonthlyReport(userId, startDateMonth, endDateMonth, page, limit);
   } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Internal Server Error";
+    const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
     return Response.json(
       { message: "An error occurred on the server.", error: errorMessage },
       { status: 500 },

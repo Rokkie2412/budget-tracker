@@ -1,25 +1,18 @@
+import { Tabs, usePathname } from "expo-router";
+import { ArrowLeftRight, LayoutDashboard, PieChart, Settings } from "lucide-react-native";
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Tabs, usePathname } from "expo-router";
-import {
-  ArrowLeftRight,
-  LayoutDashboard,
-  PieChart,
-  Settings,
-} from "lucide-react-native";
 
 import FloatingButton from "@/components/ui/floatingButton";
 import AddTransactionModal from "@/components/ui/modalAddTransaction";
 import { useLanguageStore } from "@/stores/languageStore";
 
 export default function TabLayout(): React.JSX.Element {
-  const [showAddTransactionModal, setShowAddTransactionModal] =
-    useState<boolean>(false);
+  const [showAddTransactionModal, setShowAddTransactionModal] = useState<boolean>(false);
   const { t } = useLanguageStore();
   const pathname = usePathname();
 
-  const showFloatingButton =
-    pathname.includes("dashboard") || pathname.includes("transactions");
+  const showFloatingButton = pathname.includes("dashboard") || pathname.includes("transactions");
 
   return (
     <View style={{ flex: 1 }}>
