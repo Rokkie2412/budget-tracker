@@ -5,7 +5,7 @@ import { useLanguageStore } from "@/stores/languageStore";
 
 import type { DataFromLastMonthProps, FinancialCardProps, TypeCard } from "./financialCard.types";
 
-const DataFromLastMonth = ({ data, status, subString }: DataFromLastMonthProps) => {
+const DataFromLastMonth = ({ data, status, subString, noDataStatus }: DataFromLastMonthProps) => {
   if (data && status) {
     if (status === "plus") {
       return (
@@ -15,15 +15,18 @@ const DataFromLastMonth = ({ data, status, subString }: DataFromLastMonthProps) 
         </View>
       );
     }
-    return (
-      <View className="flex-row items-center gap-2">
-        <TrendingDown size={18} color="#F87171" />
-        <Text className="text-[#F87171]">{`${data} ${subString}`}</Text>
-      </View>
-    );
+
+    if (status === "minus") {
+      return (
+        <View className="flex-row items-center gap-2">
+          <TrendingDown size={18} color="#F87171" />
+          <Text className="text-[#F87171]">{`${data} ${subString}`}</Text>
+        </View>
+      );
+    }
   }
 
-  return "";
+  return <Text className="text-[#677798] text-sm">{noDataStatus}</Text>;
 };
 
 const RenderIcon = ({ type }: TypeCard): React.ReactNode => {
@@ -82,7 +85,12 @@ const FinancialCard = ({ type, amount, data, status }: FinancialCardProps) => {
       >
         Rp {parseFloat(amount || "0").toLocaleString("id-ID")}
       </Text>
-      <DataFromLastMonth subString={t("lastMonthData")} data={data} status={status} />
+      <DataFromLastMonth
+        noDataStatus={t("trendingNoData")}
+        subString={t("lastMonthData")}
+        data={data}
+        status={status}
+      />
     </View>
   );
 };

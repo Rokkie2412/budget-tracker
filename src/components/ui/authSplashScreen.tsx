@@ -1,7 +1,7 @@
 import { Wallet } from "lucide-react-native";
 import { ActivityIndicator, Text, View } from "react-native";
 
-export default function AuthSplashScreen(): React.JSX.Element {
+const AuthSplashScreen = (): React.JSX.Element => {
   return (
     <View className="flex-1 bg-slate-50 justify-center items-center p-6 gap-8">
       {/* Logo Badge */}
@@ -19,4 +19,6 @@ export default function AuthSplashScreen(): React.JSX.Element {
       </View>
     </View>
   );
-}
+};
+
+export default AuthSplashScreen;

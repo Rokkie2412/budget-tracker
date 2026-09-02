@@ -12,4 +12,5 @@ export type DataFromLastMonthProps = {
   data?: string;
   status?: "plus" | "minus";
   subString: string;
+  noDataStatus: string;
 };

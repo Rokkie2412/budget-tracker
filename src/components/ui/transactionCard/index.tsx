@@ -2,13 +2,7 @@ import { Text, View } from "react-native";
 
 import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 
-interface TransactionCardProps {
-  title: string;
-  amount: number;
-  date: Date;
-  type: "IN" | "OUT";
-  category?: string;
-}
+import type { TransactionCardProps } from "./transactionCard.types";
 
 export const TransactionSkeleton = (): React.JSX.Element => {
   return (

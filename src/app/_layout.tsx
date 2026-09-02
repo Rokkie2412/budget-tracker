@@ -31,16 +31,16 @@ export default function RootLayout(): React.JSX.Element {
     }
   }, [token, isLoading, segments]);
 
-  if (isLoading) {
-    return <AuthSplashScreen />;
-  }
-
   return (
     <GluestackUIProvider mode="light">
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="login" />
-      </Stack>
+      {isLoading ? (
+        <AuthSplashScreen />
+      ) : (
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="login" />
+        </Stack>
+      )}
     </GluestackUIProvider>
   );
 }

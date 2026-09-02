@@ -88,6 +88,7 @@ export const translations = {
     donutChartMillion: "JT",
     donutChartBillion: "M",
     donutChartThousand: "RB",
+    trendingNoData: "Tidak Ada Data",
   },
   en: {
     welcome: "Welcome",
@@ -178,6 +179,7 @@ export const translations = {
     donutChartMillion: "M",
     donutChartBillion: "B",
     donutChartThousand: "K",
+    trendingNoData: "No Transaction",
   },
 } as const;
 

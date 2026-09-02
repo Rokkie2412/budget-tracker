@@ -40,14 +40,13 @@ export const connectDataBase = async (): Promise<Mongoose> => {
 
   if (!cached.promise || mongoose.connection.readyState !== 1) {
     const uri = getMongoUri();
-    const opts = {
-      bufferCommands: false,
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 10000,
-    };
 
     cached.promise = mongoose
-      .connect(uri, opts)
+      .connect(uri, {
+        bufferCommands: false,
+        serverSelectionTimeoutMS: 5000,
+        connectTimeoutMS: 10000,
+      } as mongoose.ConnectOptions)
       .then((m: Mongoose): Mongoose => {
         return m;
       });

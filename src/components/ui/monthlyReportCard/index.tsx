@@ -4,13 +4,8 @@ import { Pressable, Text, View } from "react-native";
 
 import { useLanguageStore } from "@/stores/languageStore";
 
-type MonthlyReportCardProps = {
-  date: Date;
-  income: number;
-  expense: number;
-  total: number;
-  onPress?: () => void;
-};
+import type { MonthlyReportCardProps } from "./monthlyReportCard.types";
+import { formattedTotal, totalTextColor } from "./monthlyReportCard.utils";
 
 export const MonthlyReportCard = ({
   date,
@@ -28,16 +23,6 @@ export const MonthlyReportCard = ({
 
   const formattedIncome = `Rp ${income.toLocaleString("id-ID")}`;
   const formattedExpense = `Rp ${expense.toLocaleString("id-ID")}`;
-
-  const formattedTotal =
-    total > 0
-      ? `+Rp ${total.toLocaleString("id-ID")}`
-      : total < 0
-        ? `-Rp ${Math.abs(total).toLocaleString("id-ID")}`
-        : `Rp ${total.toLocaleString("id-ID")}`;
-
-  const totalTextColor =
-    total > 0 ? "text-[#007A55]" : total < 0 ? "text-[#DC2626]" : "text-[#1E293B]";
 
   const content = (
     <View className="w-full bg-[#FFFFFF] p-5 rounded-2xl border border-[#EEF2F6] shadow-sm">
@@ -65,7 +50,9 @@ export const MonthlyReportCard = ({
         <Text className="text-xs font-bold text-[#1E293B] tracking-wider uppercase">
           {t("netBalance")}
         </Text>
-        <Text className={`text-lg font-bold ${totalTextColor}`}>{formattedTotal}</Text>
+        <Text className={`text-lg font-bold ${totalTextColor(total)}`}>
+          {formattedTotal(total)}
+        </Text>
       </View>
     </View>
   );

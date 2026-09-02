@@ -50,8 +50,8 @@ const useMonthlyReports = ({
 };
 
 const ReportIndexPage = (): React.JSX.Element => {
-  const [customStartDate, setCustomStartDate] = useState<string | null>(null);
-  const [customEndDate, setCustomEndDate] = useState<string | null>(null);
+  const [customStartDate, _setCustomStartDate] = useState<string | null>(null);
+  const [customEndDate, _setCustomEndDate] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const { t } = useLanguageStore();
   const { user, token } = useAuthStore((state) => state);

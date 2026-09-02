@@ -260,7 +260,11 @@ export default function HomeScreen(): React.JSX.Element {
             type="total"
             amount={monthSummary?.total?.toString() ?? "0"}
             data={monthSummary?.comparison?.percentage ?? undefined}
-            status={monthSummary?.comparison?.status ?? undefined}
+            status={
+              (transactions?.transactions?.length ?? 0) > 0
+                ? (monthSummary?.comparison?.status ?? undefined)
+                : undefined
+            }
           />
           <View className="flex-row gap-4 mt-2">
             <View className="flex-1">
@@ -284,7 +288,7 @@ export default function HomeScreen(): React.JSX.Element {
           )}
 
           {/* Transaction History & Pagination */}
-          {monthSummary && (
+          {monthSummary && transactions?.transactions && transactions.transactions.length > 0 && (
             <View className="flex p-4 pb-1 bg-white mt-4 rounded-xl">
               <View className="flex flex-row justify-between py-1">
                 <Text className="text-xl font-bold">{t("historyThisMonthTitle")}</Text>
