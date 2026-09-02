@@ -50,3 +50,6 @@ example
 .vscode/
 # Local Netlify folder
 .netlify
+
+.vercel
+.env*
