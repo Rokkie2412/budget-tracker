@@ -21,7 +21,7 @@
       "package": "com.rokkielab.budgettracker"
     },
     "web": {
-      "output": "server",
+      "output": "static",
       "favicon": "./assets/images/favicon.png",
       "bundler": "metro"
     },

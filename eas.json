@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 23.2.0",
+    "version": ">= 23.0.0",
     "appVersionSource": "remote"
   },
   "build": {
@@ -9,10 +9,23 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://budget-tracker-theta-brown.vercel.app"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://budget-tracker-theta-brown.vercel.app"
+      }
     }
   },
   "submit": {
