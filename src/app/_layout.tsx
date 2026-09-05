@@ -37,6 +37,7 @@ export default function RootLayout(): React.JSX.Element {
         <AuthSplashScreen />
       ) : (
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="login" />
         </Stack>
