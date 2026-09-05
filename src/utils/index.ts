@@ -10,6 +10,7 @@ export const swrFetcher = (url: string, token: string | null) => async () => {
   const res = await fetch(uri, {
     headers: {
       Authorization: `Bearer ${token}`,
+      "x-vercel-protection-bypass": `${process.env.X_VERCEL_TOKEN}`,
     },
   });
 
