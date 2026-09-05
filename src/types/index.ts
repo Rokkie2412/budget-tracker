@@ -130,5 +130,11 @@ export type MonthlyReportResponse = {
   data: MonthlyReportPaginatedData;
 };
 
+export type DbEnvironmentInfo = {
+  isProduction: boolean;
+  environmentName: "production" | "development";
+  uri: string;
+};
+
 export * from "./addModalTransaction";
 export * from "./dashboard";

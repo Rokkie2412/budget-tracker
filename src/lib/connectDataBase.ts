@@ -10,14 +10,15 @@ declare global {
 }
 
 const getMongoUri = (): string => {
-  const uri =
-    process.env.NODE_ENV === "production"
-      ? process.env.MONGO_URI_PROD
-      : process.env.MONGO_URI_DEV;
+  const isProduction = process.env.VERCEL_ENV
+    ? process.env.VERCEL_ENV === "production"
+    : process.env.NODE_ENV === "production";
+
+  const uri = isProduction ? process.env.MONGO_URI_PROD : process.env.MONGO_URI_DEV;
 
   if (!uri) {
     throw new Error(
-      "Database URI is not defined in environment variables (MONGO_URI_DEV / MONGO_URI_PROD / MONGODB_URI).",
+      "Database URI is not defined in environment variables (MONGO_URI_DEV / MONGO_URI_PROD).",
     );
   }
 
