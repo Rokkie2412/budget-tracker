@@ -53,7 +53,8 @@ const LoginPage = (): React.JSX.Element => {
       const fullPhoneNumber = `${country.code}${formattedNumber}`;
 
       try {
-        const response = await fetch("/api/login", {
+        const baseUrl = __DEV__ ? "" : (process.env.EXPO_PUBLIC_API_URL ?? "");
+        const response = await fetch(`${baseUrl}/api/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
