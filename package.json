@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "scripts": {
     "start": "expo start",
@@ -81,7 +81,7 @@
     "postcss": "8.5.26",
     "react-native-svg-transformer": "^1.5.3",
     "tailwindcss": "^4.2.0",
-    "typescript": "~6.0.3"
+    "typescript": "~7.0.2"
   },
   "overrides": {
     "lightningcss": "1.30.1"
