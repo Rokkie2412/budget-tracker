@@ -93,7 +93,6 @@ const ReportIndexPage = (): React.JSX.Element => {
     );
   }
 
-  console.log("DATA MONTHLY REPORT: ", data);
   return (
     <SafeAreaProvider>
       <SafeAreaView className="flex-1">

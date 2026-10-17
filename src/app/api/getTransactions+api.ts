@@ -1,5 +1,6 @@
 import { BUDGET_CATEGORIES_EXPENSE, BUDGET_CATEGORIES_INCOME } from "@/constants";
 import connectDB from "@/lib/connectDataBase";
+import { decrypt } from "@/lib/encryption";
 import { hashUserId } from "@/lib/hashUserId";
 import { verifyAuth } from "@/lib/jwtToken";
 import { Transaction } from "@/models";
@@ -84,7 +85,7 @@ const handleGetTransactions = async (
     ({ _id, amount, description, date, type, category }) => ({
       _id: _id.toString(),
       amount,
-      description: description,
+      description: decrypt(description),
       date: date.toISOString(),
       type,
       category,

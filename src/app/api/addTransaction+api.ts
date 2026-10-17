@@ -1,4 +1,5 @@
 import connectDB from "@/lib/connectDataBase";
+import { encrypt } from "@/lib/encryption";
 import { hashUserId } from "@/lib/hashUserId";
 import { verifyAuth } from "@/lib/jwtToken";
 import { Transaction } from "@/models";
@@ -38,7 +39,7 @@ export const POST = async (request: Request): Promise<Response> => {
       type,
       amount: numericAmount,
       category,
-      description: description.trim(),
+      description: encrypt(description.trim()),
       date: parsedDate,
       userId: hashedUserId,
     });

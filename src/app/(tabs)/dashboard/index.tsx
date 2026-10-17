@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { AlertCircle, PlusIcon, RefreshCw } from "lucide-react-native";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import useSWR from "swr";
@@ -221,11 +221,11 @@ export default function HomeScreen(): React.JSX.Element {
     mutate: mutateTransactions,
   } = useTransactions(user?.userId, token, page, 10);
 
-  const handleRefresh = (): void => {
+  const handleRefresh = useCallback((): void => {
     setPage(1);
-    mutateMonthSummary();
-    mutateTransactions();
-  };
+    void mutateMonthSummary();
+    void mutateTransactions();
+  }, [mutateMonthSummary, mutateTransactions]);
 
   useRefetchWhenFocus(handleRefresh);
 

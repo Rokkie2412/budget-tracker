@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import useSWR from "swr";
@@ -352,10 +352,10 @@ const TransactionList = () => {
 
   useRefetchWhenFocus(mutate);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     setPage(1);
-    mutate();
-  };
+    void mutate();
+  }, [mutate]);
 
   return (
     <SafeAreaProvider style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
