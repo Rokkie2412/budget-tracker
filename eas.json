@@ -14,7 +14,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://budget-tracker-theta-brown.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://budget-tracker-five-pi-21.vercel.app"
       }
     },
     "production": {
@@ -24,7 +24,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://budget-tracker-theta-brown.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://budget-tracker-five-pi-21.vercel.app"
       }
     }
   },
