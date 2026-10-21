@@ -6,10 +6,13 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "node": "24.22.0"
     },
     "preview": {
       "distribution": "internal",
+      "environment": "preview",
+      "node": "24.22.0",
       "android": {
         "buildType": "apk"
       },
@@ -20,6 +23,8 @@
     "production": {
       "autoIncrement": true,
       "distribution": "internal",
+      "environment": "production",
+      "node": "24.22.0",
       "android": {
         "buildType": "apk"
       },
