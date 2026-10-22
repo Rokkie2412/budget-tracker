@@ -1,5 +1,5 @@
 {
-  "buildCommand": "bun run build",
+  "buildCommand": "bun run build:web",
   "outputDirectory": "dist/client",
   "framework": null,
   "rewrites": [
