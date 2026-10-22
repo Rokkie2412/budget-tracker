@@ -23,7 +23,7 @@ A cross-platform budget tracker built with Expo and React Native. The app provid
 Install the locked dependencies and start Expo:
 
 ```bash
-bun install --frozen-lockfile
+bun install
 bun run start
 ```
 
